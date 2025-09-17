@@ -49,6 +49,15 @@
                             </button>
                         </form>
                     </div>
+
+                    <div class="mt-4 d-flex justify-content-end">
+                        <form asp-action="Checkout" method="post">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                🛒 Proceed to Shipping
+                            </button>
+                        </form>
+                    </div>
+
                 </td>
                 <td>@stock</td>
                 <td>$@(item.Product.Price* item.Quantity)</td>

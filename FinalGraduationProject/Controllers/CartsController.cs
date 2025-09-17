@@ -1,7 +1,6 @@
 ﻿using FinalGraduationProject.Data;
 using FinalGraduationProject.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -139,5 +138,56 @@ namespace FinalGraduationProject.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Checkout()
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!long.TryParse(userIdString, out long userId))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            // جلب السلة مع المنتجات
+            var userCart = await _context.Carts
+                                         .Include(c => c.CartItems)
+                                         .ThenInclude(ci => ci.Product)
+                                         .FirstOrDefaultAsync(c => c.UserId == userId);
+
+            if (userCart == null || !userCart.CartItems.Any())
+                return RedirectToAction(nameof(Index));
+
+            // إنشاء الطلب (مهم: OrderDate في Order مش في OrderItem)
+            var order = new Order
+            {
+                UserId = userId,
+                OrderDate = DateTime.UtcNow, // أو DateTime.Now لو تفضل
+                OrderItems = userCart.CartItems.Select(ci => new OrderItem
+                {
+                    ProductId = ci.ProductId,
+                    Quantity = ci.Quantity,
+                    // لو Product.Price nullable استخدم ?? 0m
+                    Price = (ci.Product?.Price ?? 0m)
+                }).ToList()
+            };
+
+            // حساب المجموع الكلي
+            order.TotalAmount = order.OrderItems.Sum(oi => oi.Price * oi.Quantity);
+
+            // إضافة الطلب وحذف السلة
+            _context.Orders.Add(order);
+            _context.Carts.Remove(userCart);
+
+            await _context.SaveChangesAsync();
+
+            // تحويل لصفحة اختيار الشحن مع id الطلب
+            return RedirectToAction("Create", "Shipments", new { orderId = order.Id });
+        }
+
     }
+
 }
+
