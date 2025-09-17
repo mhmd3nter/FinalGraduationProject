@@ -1,7 +1,6 @@
 ﻿using FinalGraduationProject.Data;
 using FinalGraduationProject.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -18,7 +17,7 @@ namespace FinalGraduationProject.Controllers
             _context = context;
         }
 
-        // GET: لعرض محتويات سلة المستخدم
+        // GET: Cart Contents
         public async Task<IActionResult> Index()
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -30,7 +29,7 @@ namespace FinalGraduationProject.Controllers
             var userCart = await _context.Carts
                                          .Include(c => c.CartItems)
                                          .ThenInclude(ci => ci.Product)
-                                         .ThenInclude(p => p.Inventory)  // جلب بيانات المخزون مع المنتج
+                                         .ThenInclude(p => p.Inventory)
                                          .FirstOrDefaultAsync(c => c.UserId == userId);
 
             if (userCart == null)
@@ -43,7 +42,7 @@ namespace FinalGraduationProject.Controllers
             return View(userCart.CartItems);
         }
 
-        // POST: لإضافة منتج إلى السلة
+        // ✅ POST: Add product to cart with TempData & redirect back to Products
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
@@ -55,8 +54,9 @@ namespace FinalGraduationProject.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            var userCart = await _context.Carts.Include(c => c.CartItems)
-                                               .FirstOrDefaultAsync(c => c.UserId == userId);
+            var userCart = await _context.Carts
+                                         .Include(c => c.CartItems)
+                                         .FirstOrDefaultAsync(c => c.UserId == userId);
 
             if (userCart == null)
             {
@@ -83,10 +83,14 @@ namespace FinalGraduationProject.Controllers
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            // ✅ Add success message to TempData
+            TempData["CartMessage"] = "✅ Product added to cart!";
+
+            // ✅ Redirect back to products list
+            return RedirectToAction("Index", "Products");
         }
 
-        // POST: لحذف منتج من السلة
+        // POST: Remove from cart
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveFromCart(long cartItemId)
@@ -100,7 +104,7 @@ namespace FinalGraduationProject.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: لتحديث كمية منتج في السلة (زيادة أو نقصان)
+        // POST: Update quantity
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateQuantity(long cartItemId, int change)
@@ -116,17 +120,14 @@ namespace FinalGraduationProject.Controllers
 
             int newQuantity = cartItem.Quantity + change;
 
-            // التحقق من عدم تجاوز المخزون المتوفر
             if (cartItem.Product.Inventory != null && newQuantity > cartItem.Product.Inventory.QuantityAvailable)
             {
                 ModelState.AddModelError("", "الكمية المطلوبة أكبر من المخزون المتوفر.");
-                // ممكن تعيد الكارت مع رسالة الخطأ مثلا
                 return RedirectToAction(nameof(Index));
             }
 
             if (newQuantity < 1)
             {
-                // لو الكمية أقل من 1 نحذف العنصر من الكارت
                 _context.CartItems.Remove(cartItem);
             }
             else
@@ -136,7 +137,6 @@ namespace FinalGraduationProject.Controllers
             }
 
             await _context.SaveChangesAsync();
-
             return RedirectToAction(nameof(Index));
         }
     }
