@@ -19,7 +19,7 @@
                         <th>Product</th>
                         <th>Quantity</th>
                         <th>Price</th>
-                        <th>total</th>
+                        <th>Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -71,8 +71,15 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-lg">
-            🚚 Confirm & Ship
-        </button>
+        <!-- الأزرار تحت -->
+        <div class="d-flex justify-content-between mt-4">
+            <a asp-controller="Carts" asp-action="Index" class="btn btn-secondary btn-lg">
+                🔙 Back to Cart
+            </a>
+
+            <button type="submit" class="btn btn-primary btn-lg">
+                🚚 Confirm & Ship
+            </button>
+        </div>
     </form>
 </div>

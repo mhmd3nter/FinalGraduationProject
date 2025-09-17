@@ -3,7 +3,6 @@ using FinalGraduationProject.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace FinalGraduationProject.Controllers
 {
@@ -51,6 +50,17 @@ namespace FinalGraduationProject.Controllers
             };
 
             _context.Shipments.Add(shipment);
+
+            var userCart = await _context.Carts
+                                 .Include(c => c.CartItems)
+                                 .FirstOrDefaultAsync(c => c.UserId == order.UserId);
+
+            if (userCart != null && userCart.CartItems.Any())
+            {
+                _context.CartItems.RemoveRange(userCart.CartItems);
+            }
+
+
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Details", "Orders", new { id = orderId });

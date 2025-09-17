@@ -180,7 +180,7 @@ namespace FinalGraduationProject.Controllers
 
             // إضافة الطلب وحذف السلة
             _context.Orders.Add(order);
-            _context.Carts.Remove(userCart);
+
 
             await _context.SaveChangesAsync();
 
