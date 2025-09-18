@@ -44,6 +44,14 @@
                                                 <li>Size: @item.ProductSize?.Size?.Name</li>
                                                 <li>@item.Product?.Description</li>
                                             </ul>
+
+                                            <!-- ✅ شكل الستوك الجديد -->
+                                            <div class="mb-2">
+                                                <span class="badge bg-info text-dark px-3 py-2" style="font-size: 0.9rem;">
+                                                    Available Stock: @stock
+                                                </span>
+                                            </div>
+
                                             <div class="fw-bold text-primary">
                                                 $@(item.Product?.Price ?? 0)
                                             </div>
