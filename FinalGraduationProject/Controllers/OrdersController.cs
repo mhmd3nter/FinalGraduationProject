@@ -128,7 +128,7 @@ namespace FinalGraduationProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Cancel(long id)
+        public async Task<IActionResult> Delete(long id)
         {
             var userIdString = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
             if (!long.TryParse(userIdString, out long userId))
@@ -140,10 +140,9 @@ namespace FinalGraduationProject.Controllers
             if (order == null)
                 return NotFound();
 
-            // Allow cancel if status is "Pending" or "Confirmed"
-            if (order.Status != "Pending" && order.Status != "Confirmed")
+            if (order.Status != "Confirmed")
             {
-                TempData["ErrorMessage"] = "You can only delete orders with status 'Pending' or 'Confirmed'.";
+                TempData["ErrorMessage"] = "You can only delete orders with status 'Confirmed'.";
                 return RedirectToAction("MyOrders");
             }
 
@@ -154,25 +153,25 @@ namespace FinalGraduationProject.Controllers
             return RedirectToAction("MyOrders");
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> PlaceOrder(string address, string phoneNumber /*, other parameters */)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (await _userManager.IsInRoleAsync(user, "Admin"))
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> PlaceOrder(string address, string phoneNumber /*, other parameters */)
             {
-                return Forbid();
+                var user = await _userManager.GetUserAsync(User);
+                if (await _userManager.IsInRoleAsync(user, "Admin"))
+                {
+                    return Forbid();
+                }
+
+                // Save address and phone number with the order
+                // Example:
+                // var order = new Order { ... };
+                // order.Address = address;
+                // order.PhoneNumber = phoneNumber;
+                // _context.Orders.Add(order);
+                // await _context.SaveChangesAsync();
+
+                return RedirectToAction("MyOrders");
             }
-
-            // Save address and phone number with the order
-            // Example:
-            // var order = new Order { ... };
-            // order.Address = address;
-            // order.PhoneNumber = phoneNumber;
-            // _context.Orders.Add(order);
-            // await _context.SaveChangesAsync();
-
-            return RedirectToAction("MyOrders");
         }
-    }
-}
+    } 
