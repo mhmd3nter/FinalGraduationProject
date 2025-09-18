@@ -1,40 +1,38 @@
 ﻿@{
     ViewData["Title"] = "Admin Dashboard";
+    var recentOrders = ViewBag.RecentOrders as IEnumerable<dynamic>;
 }
-
 <div class="container py-5">
-    <h1 class="mb-4 text-center">Admin Dashboard</h1>
-
-    <!-- Website Status Cards -->
-    <div class="row mb-5 g-4">
+    <h2 class="fw-bold text-primary mb-4">@ViewData["Title"]</h2>
+    <div class="row mb-4">
         <div class="col-md-3">
-            <div class="card text-center shadow-sm border-primary">
+            <div class="card text-center shadow">
                 <div class="card-body">
-                    <h5 class="card-title text-primary">Total Users</h5>
+                    <h5 class="card-title">Users</h5>
                     <p class="display-6 fw-bold">@ViewBag.UserCount</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-center shadow-sm border-success">
+            <div class="card text-center shadow">
                 <div class="card-body">
-                    <h5 class="card-title text-success">Total Orders</h5>
+                    <h5 class="card-title">Orders</h5>
                     <p class="display-6 fw-bold">@ViewBag.OrderCount</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-center shadow-sm border-info">
+            <div class="card text-center shadow">
                 <div class="card-body">
-                    <h5 class="card-title text-info">Total Products</h5>
+                    <h5 class="card-title">Products</h5>
                     <p class="display-6 fw-bold">@ViewBag.ProductCount</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-center shadow-sm border-warning">
+            <div class="card text-center shadow">
                 <div class="card-body">
-                    <h5 class="card-title text-warning">Total Sales</h5>
+                    <h5 class="card-title">Total Sales</h5>
                     <p class="display-6 fw-bold">$@ViewBag.TotalSales</p>
                 </div>
             </div>
@@ -59,7 +57,7 @@
                     <i class="fas fa-boxes fa-3x text-info mb-3"></i>
                     <h4>Manage Products</h4>
                     <p>Add, edit, or remove products from your store.</p>
-                    <a asp-area="" asp-controller="Products" asp-action="Index" class="btn btn-info w-100">Go to Products</a>
+                    <a asp-area="" asp-controller="Adminproducts" asp-action="Index" class="btn btn-info w-100">Go to Products</a>
                 </div>
             </div>
         </div>

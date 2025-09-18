@@ -33,7 +33,7 @@ namespace FinalGraduationProject.Controllers
                         .ThenInclude(ps => ps.Product)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.ProductSize.Size)
-                .Where(o => o.UserId == userId)
+                .Where(o => o.UserId == userId && o.Status != "Cancelled") // Exclude cancelled orders
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 
@@ -153,25 +153,60 @@ namespace FinalGraduationProject.Controllers
             return RedirectToAction("MyOrders");
         }
 
-            [HttpPost]
-            [ValidateAntiForgeryToken]
-            public async Task<IActionResult> PlaceOrder(string address, string phoneNumber /*, other parameters */)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PlaceOrder(string address, string phoneNumber /*, other parameters */)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (await _userManager.IsInRoleAsync(user, "Admin"))
             {
-                var user = await _userManager.GetUserAsync(User);
-                if (await _userManager.IsInRoleAsync(user, "Admin"))
-                {
-                    return Forbid();
-                }
-
-                // Save address and phone number with the order
-                // Example:
-                // var order = new Order { ... };
-                // order.Address = address;
-                // order.PhoneNumber = phoneNumber;
-                // _context.Orders.Add(order);
-                // await _context.SaveChangesAsync();
-
-                return RedirectToAction("MyOrders");
+                return Forbid();
             }
+
+            // Save address and phone number with the order
+            // Example:
+            // var order = new Order { ... };
+            // order.Address = address;
+            // order.PhoneNumber = phoneNumber;
+            // _context.Orders.Add(order);
+            // await _context.SaveChangesAsync();
+
+            // After order and payment are successful:
+            var userId = user.Id;
+            var cart = await _context.Carts
+                .Include(c => c.CartItems)
+                .FirstOrDefaultAsync(c => c.UserId == userId);
+
+            if (cart != null)
+            {
+                _context.CartItems.RemoveRange(cart.CartItems);
+                // Optionally: _context.Carts.Remove(cart);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("MyOrders");
         }
-    } 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Cancel(long id)
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!long.TryParse(userIdString, out long userId))
+                return RedirectToAction("Index", "Home");
+
+            var order = await _context.Orders
+                .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+
+            if (order == null)
+                return NotFound();
+
+            // Remove the order from the database
+            _context.Orders.Remove(order);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Order cancelled and removed successfully.";
+            return RedirectToAction("MyOrders");
+        }
+    }
+}

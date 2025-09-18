@@ -165,6 +165,27 @@ public class AdminProductsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    // GET: AdminProducts/Details/5
+    public async Task<IActionResult> Details(long? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var product = await _context.Products
+            .Include(p => p.Brand)
+            .Include(p => p.Category)
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        return View(product);
+    }
+
     private bool ProductExists(long id)
     {
         return _context.Products.Any(e => e.Id == id);
