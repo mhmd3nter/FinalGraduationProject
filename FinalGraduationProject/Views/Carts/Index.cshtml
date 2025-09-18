@@ -144,5 +144,10 @@
     </section>
 </main>
 
+@if (!User.IsInRole("Admin"))
+{
+    <!-- Show Add to Cart or Order button -->
+}
+
 <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />

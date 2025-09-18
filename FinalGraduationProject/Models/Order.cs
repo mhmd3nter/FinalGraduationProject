@@ -8,8 +8,10 @@
         public ApplicationUser User { get; set; } = null!;
 
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;
-        public string Status { get; set; } = "Pending"; // Pending, Paid, Shipped, Completed, Cancelled
+        public string Status { get; set; } = "Pending";
         public decimal TotalAmount { get; set; }
+
+        // Add these lines:
 
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
         public ICollection<Payment> Payments { get; set; } = new List<Payment>();

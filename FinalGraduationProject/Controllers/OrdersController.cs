@@ -1,5 +1,6 @@
 ﻿using FinalGraduationProject.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -10,10 +11,12 @@ namespace FinalGraduationProject.Controllers
     public class OrdersController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public OrdersController(ApplicationDbContext context)
+        public OrdersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // User: View their own orders
@@ -147,6 +150,27 @@ namespace FinalGraduationProject.Controllers
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Order deleted successfully.";
+            return RedirectToAction("MyOrders");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PlaceOrder(string address, string phoneNumber /*, other parameters */)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                return Forbid();
+            }
+
+            // Save address and phone number with the order
+            // Example:
+            // var order = new Order { ... };
+            // order.Address = address;
+            // order.PhoneNumber = phoneNumber;
+            // _context.Orders.Add(order);
+            // await _context.SaveChangesAsync();
+
             return RedirectToAction("MyOrders");
         }
     }
