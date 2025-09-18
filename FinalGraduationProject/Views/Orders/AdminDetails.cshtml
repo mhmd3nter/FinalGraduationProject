@@ -6,6 +6,7 @@
 
 <h2>Order #@Model.Id Details</h2>
 <p><strong>User ID:</strong> @Model.UserId</p>
+<p><strong>User Name:</strong> @Model.User.Name</p>
 <p><strong>Date:</strong> @Model.OrderDate.ToString("yyyy-MM-dd HH:mm")</p>
 <p><strong>Status:</strong> @Model.Status</p>
 <p><strong>Total:</strong> $@Model.TotalAmount.ToString("F2")</p>
@@ -36,3 +37,8 @@
 </table>
 
 <a asp-action="Manage" class="btn btn-secondary">Back to Orders</a>
+
+@if (User.IsInRole("Admin"))
+{
+    <a asp-action="EditStatus" asp-route-id="@Model.Id" class="btn btn-warning mb-3">Edit Status</a>
+}

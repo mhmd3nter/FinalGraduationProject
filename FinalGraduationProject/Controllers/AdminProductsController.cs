@@ -18,17 +18,31 @@ public class AdminProductsController : Controller
     }
 
     // GET: AdminProducts
+    [Authorize(Roles = "Admin")]
+
     public async Task<IActionResult> Dashboard()
     {
-        var productCount = await _context.Products.CountAsync();
-        var userCount = await _context.Users.CountAsync();
-        var orderCount = await _context.Orders.CountAsync();
-        var totalSales = await _context.Orders.SumAsync(o => o.TotalAmount);
+        // Website statistics
+        ViewBag.UserCount = await _context.Users.CountAsync();
+        ViewBag.OrderCount = await _context.Orders.CountAsync();
+        ViewBag.ProductCount = await _context.Products.CountAsync();
+        ViewBag.TotalSales = await _context.Orders.SumAsync(o => o.TotalAmount);
 
-        ViewData["ProductCount"] = productCount;
-        ViewData["UserCount"] = userCount;
-        ViewData["OrderCount"] = orderCount;
-        ViewData["TotalSales"] = totalSales;
+        // Recent orders (last 5)
+        var recentOrders = await _context.Orders
+            .OrderByDescending(o => o.OrderDate)
+            .Take(5)
+            .Select(o => new
+            {
+                o.Id,
+                UserEmail = _context.Users.Where(u => u.Id == o.UserId).Select(u => u.Email).FirstOrDefault(),
+                o.OrderDate,
+                o.Status,
+                Total = o.TotalAmount
+            })
+            .ToListAsync();
+
+        ViewBag.RecentOrders = recentOrders;
 
         return View();
     }

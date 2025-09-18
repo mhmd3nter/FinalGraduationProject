@@ -7,8 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\ecommerce-product-page-html-css-javascript-main\**" />
+    <Content Remove="wwwroot\ecommerce-product-page-html-css-javascript-main\**" />
+    <EmbeddedResource Remove="wwwroot\ecommerce-product-page-html-css-javascript-main\**" />
+    <None Remove="wwwroot\ecommerce-product-page-html-css-javascript-main\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="wwwroot\.vscode\settings.json" />
-    <Content Include="wwwroot\ecommerce-product-page-html-css-javascript-main\.vscode\settings.json" />
   </ItemGroup>
 
   <ItemGroup>

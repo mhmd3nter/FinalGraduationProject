@@ -58,11 +58,15 @@ namespace FinalGraduationProject.Controllers
             return View(order);
         }
 
+       
+        
+
         // Admin: Manage all orders
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Manage()
         {
             var orders = await _context.Orders
+                .Include(o => o.User)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.ProductSize)
                         .ThenInclude(ps => ps.Product)
@@ -79,6 +83,7 @@ namespace FinalGraduationProject.Controllers
         public async Task<IActionResult> AdminDetails(long id)
         {
             var order = await _context.Orders
+                .Include(o => o.User) // <-- This line ensures User is loaded
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.ProductSize)
                         .ThenInclude(ps => ps.Product)
@@ -90,6 +95,59 @@ namespace FinalGraduationProject.Controllers
                 return NotFound();
 
             return View(order);
+        }
+
+        // Admin: Edit order status
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> EditStatus(long id)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
+                return NotFound();
+            return View(order);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditStatus(long id, string status)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
+                return NotFound();
+
+            order.Status = status;
+            _context.Orders.Update(order);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("AdminDetails", new { id = order.Id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(long id)
+        {
+            var userIdString = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (!long.TryParse(userIdString, out long userId))
+                return RedirectToAction("Index", "Home");
+
+            var order = await _context.Orders
+                .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+
+            if (order == null)
+                return NotFound();
+
+            if (order.Status != "Confirmed")
+            {
+                TempData["ErrorMessage"] = "You can only delete orders with status 'Confirmed'.";
+                return RedirectToAction("MyOrders");
+            }
+
+            _context.Orders.Remove(order);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Order deleted successfully.";
+            return RedirectToAction("MyOrders");
         }
     }
 }

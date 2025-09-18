@@ -1,4 +1,6 @@
-﻿@model List<UserRolesViewModel>
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@model IEnumerable<ApplicationUser>
 
 @{
     ViewData["Title"] = "Manage Users";
@@ -11,19 +13,44 @@
         <tr>
             <th>Email</th>
             <th>Roles</th>
+            <th>Status</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var userRole in Model)
-        {
-            <tr>
-                <td>@userRole.User.Email</td>
-                <td>@string.Join(", ", userRole.Roles)</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@userRole.User.Id" class="btn btn-sm btn-primary">Edit</a>
-                </td>
-            </tr>
-        }
+    @foreach (var user in Model)
+    {
+        <tr>
+            <td>@user.Email</td>
+            <td>
+                @string.Join(", ", await UserManager.GetRolesAsync(user))
+            </td>
+            <td>
+                @(user.LockoutEnd != null && user.LockoutEnd > DateTimeOffset.Now ? "Blocked" : "Active")
+            </td>
+            <td>
+                <form asp-action="MakeAdmin" asp-route-id="@user.Id" method="post" style="display:inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm btn-primary">Make Admin</button>
+                </form>
+                <form asp-action="RemoveAdmin" asp-route-id="@user.Id" method="post" style="display:inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm btn-warning">Remove Admin</button>
+                </form>
+                <form asp-action="Block" asp-route-id="@user.Id" method="post" style="display:inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm btn-danger">Block</button>
+                </form>
+                <form asp-action="Unblock" asp-route-id="@user.Id" method="post" style="display:inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm btn-success">Unblock</button>
+                </form>
+                <form asp-action="Delete" asp-route-id="@user.Id" method="post" style="display:inline" onsubmit="return confirm('Are you sure?');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
     </tbody>
 </table>

@@ -27,10 +27,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<long>>(options =>
 .AddDefaultTokenProviders();
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Identity/Account/Login"; // التوجيه لصفحة تسجيل الدخول
-    options.AccessDeniedPath = "/Identity/Account/AccessDenied"; // لو المستخدم مسجل بس معندوش صلاحية
-    options.ExpireTimeSpan = TimeSpan.FromDays(7); // كوكي تظل 7 أيام
-    options.SlidingExpiration = true;
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
 });
 
 
