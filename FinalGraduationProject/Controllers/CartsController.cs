@@ -1,6 +1,7 @@
 ﻿using FinalGraduationProject.Data;
 using FinalGraduationProject.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -11,10 +12,12 @@ namespace FinalGraduationProject.Controllers
     public class CartsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public CartsController(ApplicationDbContext context)
+        public CartsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Cart Contents
@@ -50,6 +53,12 @@ namespace FinalGraduationProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToCart(long productId, int quantity, long productSizeId, string color)
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                return Forbid(); // or return a view/message indicating not allowed
+            }
+
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!long.TryParse(userIdString, out long userId))
                 return RedirectToAction("Index", "Home");
