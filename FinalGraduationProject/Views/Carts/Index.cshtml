@@ -80,15 +80,18 @@
 
                                         <!-- Remove -->
                                         <div class="col-md-2 text-center">
-                                            <form asp-controller="Carts" asp-action="RemoveFromCart" method="post">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="cartItemId" value="@item.Id" />
-                                                <button type="submit"
-                                                        class="btn btn-outline-danger w-100 mt-2"
-                                                        style="border-radius:8px;">
-                                                    <i class="fas fa-trash-alt"></i> Remove
-                                                </button>
-                                            </form>
+                                            @if (item.Quantity == 1)
+                                            {
+                                                <form asp-controller="Carts" asp-action="RemoveFromCart" method="post">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="cartItemId" value="@item.Id" />
+                                                    <button type="submit"
+                                                            class="btn btn-outline-danger w-100 mt-2"
+                                                            style="border-radius:8px;">
+                                                        <i class="fas fa-trash-alt"></i> Remove
+                                                    </button>
+                                                </form>
+                                            }
                                         </div>
                                     </div>
                                 </div>
