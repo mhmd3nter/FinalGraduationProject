@@ -99,6 +99,19 @@ namespace FinalGraduationProject.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Sizes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Sizes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -278,7 +291,6 @@ namespace FinalGraduationProject.Migrations
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Gender = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Size = table.Column<int>(type: "int", nullable: false),
                     Color = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -356,33 +368,6 @@ namespace FinalGraduationProject.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CartItems",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CartId = table.Column<long>(type: "bigint", nullable: false),
-                    ProductId = table.Column<long>(type: "bigint", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CartItems", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_CartItems_Carts_CartId",
-                        column: x => x.CartId,
-                        principalTable: "Carts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CartItems_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Inventories",
                 columns: table => new
                 {
@@ -407,6 +392,67 @@ namespace FinalGraduationProject.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ProductSizes",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductId = table.Column<long>(type: "bigint", nullable: false),
+                    SizeId = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductSizes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProductSizes_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProductSizes_Sizes_SizeId",
+                        column: x => x.SizeId,
+                        principalTable: "Sizes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CartItems",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductId = table.Column<long>(type: "bigint", nullable: false),
+                    CartId = table.Column<long>(type: "bigint", nullable: false),
+                    ProductSizeId = table.Column<long>(type: "bigint", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CartItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CartItems_Carts_CartId",
+                        column: x => x.CartId,
+                        principalTable: "Carts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CartItems_ProductSizes_ProductSizeId",
+                        column: x => x.ProductSizeId,
+                        principalTable: "ProductSizes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CartItems_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "OrderItems",
                 columns: table => new
                 {
@@ -414,6 +460,7 @@ namespace FinalGraduationProject.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     OrderId = table.Column<long>(type: "bigint", nullable: false),
                     ProductId = table.Column<long>(type: "bigint", nullable: false),
+                    ProductSizeId = table.Column<long>(type: "bigint", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
                 },
@@ -426,6 +473,12 @@ namespace FinalGraduationProject.Migrations
                         principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OrderItems_ProductSizes_ProductSizeId",
+                        column: x => x.ProductSizeId,
+                        principalTable: "ProductSizes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_OrderItems_Products_ProductId",
                         column: x => x.ProductId,
@@ -455,30 +508,46 @@ namespace FinalGraduationProject.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Products",
-                columns: new[] { "Id", "BrandId", "CategoryId", "Color", "Description", "Gender", "ImageUrl", "IsActive", "Name", "Price", "Size" },
+                table: "Sizes",
+                columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { 1L, 1L, 1L, "Black", "Running shoes", "Men", "/images/nike_airzoom.jpg", true, "Nike Air Zoom", 120m, 42 },
-                    { 2L, 1L, 1L, "Blue", "Lightweight running shoes", "Women", "/images/nike_revolution.jpg", true, "Nike Revolution", 90m, 38 },
-                    { 3L, 2L, 1L, "White", "High comfort running shoes", "Men", "/images/adidas_ultraboost.jpg", true, "Adidas Ultraboost", 150m, 43 },
-                    { 4L, 2L, 2L, "Green", "Classic casual shoes", "Unisex", "/images/adidas_stansmith.jpg", true, "Adidas Stan Smith", 100m, 41 },
-                    { 5L, 3L, 2L, "Pink", "Casual sneakers", "Women", "/images/puma_smash.jpg", true, "Puma Smash", 85m, 39 },
-                    { 6L, 1L, 1L, "Grey", "Versatile running shoes", "Men", "/images/nike_pegasus.jpg", true, "Nike Pegasus", 130m, 44 },
-                    { 7L, 2L, 2L, "Red", "Retro casual shoes", "Unisex", "/images/adidas_gazelle.jpg", true, "Adidas Gazelle", 95m, 40 },
-                    { 8L, 3L, 3L, "Blue/White", "Sporty sneakers", "Men", "/images/puma_future.jpg", true, "Puma Future Rider", 110m, 42 },
-                    { 9L, 1L, 2L, "White/Black", "Casual lifestyle shoes", "Men", "/images/nike_courtvision.jpg", true, "Nike Court Vision", 105m, 43 },
-                    { 10L, 2L, 2L, "White/Gold", "Street style classic", "Women", "/images/adidas_superstar.jpg", true, "Adidas Superstar", 110m, 37 },
-                    { 11L, 3L, 3L, "Black/Orange", "Chunky sneakers", "Unisex", "/images/puma_rsx.jpg", true, "Puma RS-X", 125m, 42 },
-                    { 12L, 1L, 3L, "Pink/White", "Sporty lifestyle shoes", "Women", "/images/nike_airmax.jpg", true, "Nike Air Max", 140m, 39 },
-                    { 13L, 2L, 3L, "Black", "Trendy sports shoes", "Men", "/images/adidas_nmd.jpg", true, "Adidas NMD", 160m, 44 },
-                    { 14L, 3L, 2L, "White", "Casual sneakers", "Women", "/images/puma_cali.jpg", true, "Puma Cali", 90m, 38 },
-                    { 15L, 1L, 1L, "Grey", "Budget running shoes", "Men", "/images/nike_downshifter.jpg", true, "Nike Downshifter", 75m, 42 },
-                    { 16L, 2L, 3L, "Blue", "Sporty sneakers", "Unisex", "/images/adidas_zxflux.jpg", true, "Adidas ZX Flux", 115m, 41 },
-                    { 17L, 3L, 1L, "Black/Red", "Performance running shoes", "Men", "/images/puma_ignite.jpg", true, "Puma Ignite", 135m, 43 },
-                    { 18L, 1L, 2L, "White", "Classic sneakers", "Unisex", "/images/nike_blazer.jpg", true, "Nike Blazer", 95m, 42 },
-                    { 19L, 2L, 3L, "Brown", "Outdoor trail shoes", "Men", "/images/adidas_terrex.jpg", true, "Adidas Terrex", 170m, 45 },
-                    { 20L, 3L, 3L, "Purple", "Training shoes", "Women", "/images/puma_enzo.jpg", true, "Puma Enzo", 100m, 38 }
+                    { 1, "37" },
+                    { 2, "38" },
+                    { 3, "39" },
+                    { 4, "40" },
+                    { 5, "41" },
+                    { 6, "42" },
+                    { 7, "43" },
+                    { 8, "44" },
+                    { 9, "45" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Products",
+                columns: new[] { "Id", "BrandId", "CategoryId", "Color", "Description", "Gender", "ImageUrl", "IsActive", "Name", "Price" },
+                values: new object[,]
+                {
+                    { 1L, 1L, 1L, "Black", "Running shoes", "Men", "/images/nike_airzoom.jpg", true, "Nike Air Zoom", 120m },
+                    { 2L, 1L, 1L, "Blue", "Lightweight running shoes", "Women", "/images/nike_revolution.jpg", true, "Nike Revolution", 90m },
+                    { 3L, 2L, 1L, "White", "High comfort running shoes", "Men", "/images/adidas_ultraboost.jpg", true, "Adidas Ultraboost", 150m },
+                    { 4L, 2L, 2L, "Green", "Classic casual shoes", "Unisex", "/images/adidas_stansmith.jpg", true, "Adidas Stan Smith", 100m },
+                    { 5L, 3L, 2L, "Pink", "Casual sneakers", "Women", "/images/puma_smash.jpg", true, "Puma Smash", 85m },
+                    { 6L, 1L, 1L, "Grey", "Versatile running shoes", "Men", "/images/nike_pegasus.jpg", true, "Nike Pegasus", 130m },
+                    { 7L, 2L, 2L, "Red", "Retro casual shoes", "Unisex", "/images/adidas_gazelle.jpg", true, "Adidas Gazelle", 95m },
+                    { 8L, 3L, 3L, "Blue/White", "Sporty sneakers", "Men", "/images/puma_future.jpg", true, "Puma Future Rider", 110m },
+                    { 9L, 1L, 2L, "White/Black", "Casual lifestyle shoes", "Men", "/images/nike_courtvision.jpg", true, "Nike Court Vision", 105m },
+                    { 10L, 2L, 2L, "White/Gold", "Street style classic", "Women", "/images/adidas_superstar.jpg", true, "Adidas Superstar", 110m },
+                    { 11L, 3L, 3L, "Black/Orange", "Chunky sneakers", "Unisex", "/images/puma_rsx.jpg", true, "Puma RS-X", 125m },
+                    { 12L, 1L, 3L, "Pink/White", "Sporty lifestyle shoes", "Women", "/images/nike_airmax.jpg", true, "Nike Air Max", 140m },
+                    { 13L, 2L, 3L, "Black", "Trendy sports shoes", "Men", "/images/adidas_nmd.jpg", true, "Adidas NMD", 160m },
+                    { 14L, 3L, 2L, "White", "Casual sneakers", "Women", "/images/puma_cali.jpg", true, "Puma Cali", 90m },
+                    { 15L, 1L, 1L, "Grey", "Budget running shoes", "Men", "/images/nike_downshifter.jpg", true, "Nike Downshifter", 75m },
+                    { 16L, 2L, 3L, "Blue", "Sporty sneakers", "Unisex", "/images/adidas_zxflux.jpg", true, "Adidas ZX Flux", 115m },
+                    { 17L, 3L, 1L, "Black/Red", "Performance running shoes", "Men", "/images/puma_ignite.jpg", true, "Puma Ignite", 135m },
+                    { 18L, 1L, 2L, "White", "Classic sneakers", "Unisex", "/images/nike_blazer.jpg", true, "Nike Blazer", 95m },
+                    { 19L, 2L, 3L, "Brown", "Outdoor trail shoes", "Men", "/images/adidas_terrex.jpg", true, "Adidas Terrex", 170m },
+                    { 20L, 3L, 3L, "Purple", "Training shoes", "Women", "/images/puma_enzo.jpg", true, "Puma Enzo", 100m }
                 });
 
             migrationBuilder.InsertData(
@@ -486,26 +555,26 @@ namespace FinalGraduationProject.Migrations
                 columns: new[] { "Id", "LastStockChangeAt", "ProductId", "QuantityAvailable", "QuantityReserved", "SafetyStockThreshold" },
                 values: new object[,]
                 {
-                    { 1L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1L, 50, 0, 5 },
-                    { 2L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2L, 50, 0, 5 },
-                    { 3L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 3L, 50, 0, 5 },
-                    { 4L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 4L, 50, 0, 5 },
-                    { 5L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 5L, 50, 0, 5 },
-                    { 6L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 6L, 50, 0, 5 },
-                    { 7L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 7L, 50, 0, 5 },
-                    { 8L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 8L, 50, 0, 5 },
-                    { 9L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 9L, 50, 0, 5 },
-                    { 10L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 10L, 50, 0, 5 },
-                    { 11L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 11L, 50, 0, 5 },
-                    { 12L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 12L, 50, 0, 5 },
-                    { 13L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 13L, 50, 0, 5 },
-                    { 14L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 14L, 50, 0, 5 },
-                    { 15L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 15L, 50, 0, 5 },
-                    { 16L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 16L, 50, 0, 5 },
-                    { 17L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 17L, 50, 0, 5 },
-                    { 18L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 18L, 50, 0, 5 },
-                    { 19L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 19L, 50, 0, 5 },
-                    { 20L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 20L, 50, 0, 5 }
+                    { 1L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1L, 24, 0, 5 },
+                    { 2L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2L, 26, 0, 5 },
+                    { 3L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 3L, 33, 0, 5 },
+                    { 4L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 4L, 18, 0, 5 },
+                    { 5L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 5L, 25, 0, 5 },
+                    { 6L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 6L, 28, 0, 5 },
+                    { 7L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 7L, 21, 0, 5 },
+                    { 8L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 8L, 30, 0, 5 },
+                    { 9L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 9L, 25, 0, 5 },
+                    { 10L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 10L, 30, 0, 5 },
+                    { 11L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 11L, 32, 0, 5 },
+                    { 12L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 12L, 30, 0, 5 },
+                    { 13L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 13L, 35, 0, 5 },
+                    { 14L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 14L, 28, 0, 5 },
+                    { 15L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 15L, 30, 0, 5 },
+                    { 16L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 16L, 35, 0, 5 },
+                    { 17L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 17L, 32, 0, 5 },
+                    { 18L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 18L, 33, 0, 5 },
+                    { 19L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 19L, 55, 0, 5 },
+                    { 20L, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 20L, 60, 0, 5 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -563,6 +632,11 @@ namespace FinalGraduationProject.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CartItems_ProductSizeId",
+                table: "CartItems",
+                column: "ProductSizeId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Carts_UserId",
                 table: "Carts",
                 column: "UserId");
@@ -582,6 +656,11 @@ namespace FinalGraduationProject.Migrations
                 name: "IX_OrderItems_ProductId",
                 table: "OrderItems",
                 column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderItems_ProductSizeId",
+                table: "OrderItems",
+                column: "ProductSizeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_UserId",
@@ -604,9 +683,19 @@ namespace FinalGraduationProject.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Products_Name_Size_Color",
+                name: "IX_Products_Name_Color",
                 table: "Products",
-                columns: new[] { "Name", "Size", "Color" });
+                columns: new[] { "Name", "Color" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductSizes_ProductId",
+                table: "ProductSizes",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductSizes_SizeId",
+                table: "ProductSizes",
+                column: "SizeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Shipments_OrderId",
@@ -662,7 +751,7 @@ namespace FinalGraduationProject.Migrations
                 name: "Carts");
 
             migrationBuilder.DropTable(
-                name: "Products");
+                name: "ProductSizes");
 
             migrationBuilder.DropTable(
                 name: "Orders");
@@ -671,13 +760,19 @@ namespace FinalGraduationProject.Migrations
                 name: "ShippingMethods");
 
             migrationBuilder.DropTable(
+                name: "Products");
+
+            migrationBuilder.DropTable(
+                name: "Sizes");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
                 name: "Brands");
 
             migrationBuilder.DropTable(
                 name: "Categories");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUsers");
         }
     }
 }

@@ -3,6 +3,15 @@
 @{
     ViewData["Title"] = "Products";
 }
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+
+@{
+    var isAdmin = User.IsInRole("Admin");
+}
+
+
 
 <h1>Products</h1>
 
@@ -10,45 +19,36 @@
     <a asp-action="Create" class="btn btn-success">Create New</a>
 </p>
 
-<!-- ✅ Toast Message for Cart Success -->
-@if (TempData["CartMessage"] != null)
-{
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div class="toast show text-white bg-success border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    @TempData["CartMessage"]
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
-}
 
-<!-- ✅ Products Grid -->
-<div class="row">
-    @foreach (var item in Model)
-    {
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm">
-                <img src="@item.ImageUrl" class="card-img-top" alt="@item.Name" />
-                <div class="card-body">
-                    <h5 class="card-title">@item.Name</h5>
-                    <p class="card-text text-muted">@item.Brand.Name | @item.Category.Name</p>
-                    <p class="card-text"><strong>$@item.Price</strong></p>
 
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">View</a>
+    <div class="product-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
 
-                        <form asp-controller="Carts" asp-action="AddToCart" method="post" class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="productId" value="@item.Id" />
-                            <input type="hidden" name="quantity" value="1" />
-                            <button type="submit" class="btn btn-sm btn-primary">Add to Cart</button>
-                        </form>
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <a asp-action="Details" asp-route-id="@item.Id">
+                        <img src="@Url.Content(item.ImageUrl)" alt="@item.Name" class="img-fluid">
+                    </a>
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-dark">
+                                @item.Name
+                            </a>
+                        </h5>
+                        <p class="card-text text-muted">@item.Brand.Name | @item.Category.Name</p>
+                        <p class="card-text"><strong>$@item.Price</strong></p>
+                        <div>
+                            <strong>Sizes:</strong>
+                            @string.Join(", ", item.ProductSizes.Select(ps => ps.Size.Name))
+                            <br />
+                            <strong>Color:</strong> @item.Color
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">View</a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    }
-</div>
+        }
+    </div>

@@ -1,0 +1,39 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<h2>Admin Dashboard</h2>
+<div class="row">
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Products</h5>
+                <p class="display-6">@ViewData["ProductCount"]</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Users</h5>
+                <p class="display-6">@ViewData["UserCount"]</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Orders</h5>
+                <p class="display-6">@ViewData["OrderCount"]</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Total Sales</h5>
+                <p class="display-6">$@ViewData["TotalSales"]</p>
+            </div>
+        </div>
+    </div>
+</div>

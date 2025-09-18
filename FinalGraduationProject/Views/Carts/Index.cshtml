@@ -47,7 +47,7 @@ else
                 <div class="card-body p-0">
                     @foreach (var item in Model)
                     {
-                        var stock = item.Product?.Inventory?.QuantityAvailable ?? 0;
+                        var stock = item.ProductSize?.Quantity ?? 0;
                         <div class="border-bottom p-3">
                             <div class="row align-items-center">
                                 <div class="col-md-2">
@@ -59,7 +59,17 @@ else
                                 <div class="col-md-3">
                                     <h6 class="mb-1">@(item.Product?.Name ?? "Unknown Product")</h6>
                                     <small class="text-muted">@(item.Product?.Brand?.Name ?? "Unknown Brand")</small>
-                                    <br>
+                                    <br />
+                                    <small class="text-muted">@(item.Product?.Description ?? "")</small>
+                                    <br />
+                                    <span>
+                                        <strong>Color:</strong> @(item.Product?.Color ?? "N/A")
+                                    </span>
+                                    <br />
+                                    <span>
+                                        <strong>Size:</strong> @(item.ProductSize?.Size?.Name ?? "N/A")
+                                    </span>
+                                    <br />
                                     @if (stock > 0)
                                     {
                                         <small class="text-success">

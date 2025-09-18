@@ -22,82 +22,73 @@ namespace FinalGraduationProject.Controllers
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!long.TryParse(userIdString, out long userId))
-            {
                 return RedirectToAction("Index", "Home");
-            }
 
             var userCart = await _context.Carts
-                                         .Include(c => c.CartItems)
-                                         .ThenInclude(ci => ci.Product)
-                                         .ThenInclude(p => p.Brand) // Include Brand for display
-                                         .Include(c => c.CartItems)
-                                         .ThenInclude(ci => ci.Product)
-                                         .ThenInclude(p => p.Inventory) // 🔧 FIX: Include Inventory
-                                         .FirstOrDefaultAsync(c => c.UserId == userId);
+                .Include(c => c.CartItems)
+                    .ThenInclude(ci => ci.ProductSize)
+                        .ThenInclude(ps => ps.Product)
+                            .ThenInclude(p => p.Brand)
+                .Include(c => c.CartItems)
+                    .ThenInclude(ci => ci.ProductSize)
+                        .ThenInclude(ps => ps.Size)
+                .FirstOrDefaultAsync(c => c.UserId == userId);
 
             if (userCart == null)
             {
                 userCart = new Cart { UserId = userId };
                 _context.Carts.Add(userCart);
                 await _context.SaveChangesAsync();
-                
-                // Return empty cart items since we just created the cart
                 return View(new List<CartItem>());
             }
 
             return View(userCart.CartItems);
         }
 
-        // ✅ POST: Add product to cart with TempData & redirect back to Products
+        // POST: Add product size to cart
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
-        public async Task<IActionResult> AddToCart(long productId, int quantity)
+        public async Task<IActionResult> AddToCart(long productId, int quantity, long productSizeId, string color)
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!long.TryParse(userIdString, out long userId))
-            {
                 return RedirectToAction("Index", "Home");
-            }
 
-            // Check if product exists and has stock
-            var product = await _context.Products
-                .Include(p => p.Inventory)
-                .FirstOrDefaultAsync(p => p.Id == productId);
+            var productSize = await _context.ProductSizes
+                .Include(ps => ps.Product)
+                .Include(ps => ps.Size)
+                .FirstOrDefaultAsync(ps => ps.Id == productSizeId);
 
-            if (product == null)
+            if (productSize == null)
             {
-                TempData["ErrorMessage"] = "Product not found.";
+                TempData["ErrorMessage"] = "❌ Product size not found.";
                 return RedirectToAction("Index", "Products");
             }
 
-            // Check stock availability
-            var availableStock = product.Inventory?.QuantityAvailable ?? 0;
-            if (availableStock < quantity)
+            if (productSize.Quantity < quantity)
             {
-                TempData["ErrorMessage"] = "Not enough stock available.";
+                TempData["ErrorMessage"] = $"❌ Only {productSize.Quantity} items available.";
                 return RedirectToAction("Index", "Products");
             }
 
             var userCart = await _context.Carts
-                                         .Include(c => c.CartItems)
-                                         .FirstOrDefaultAsync(c => c.UserId == userId);
+                .Include(c => c.CartItems)
+                .FirstOrDefaultAsync(c => c.UserId == userId);
 
             if (userCart == null)
             {
                 userCart = new Cart { UserId = userId };
                 _context.Carts.Add(userCart);
-                await _context.SaveChangesAsync(); // Save to get the cart ID
+                await _context.SaveChangesAsync();
             }
 
-            var cartItem = userCart.CartItems.FirstOrDefault(ci => ci.ProductId == productId);
+            var cartItem = userCart.CartItems.FirstOrDefault(ci => ci.ProductSizeId == productSizeId);
 
             if (cartItem != null)
             {
-                // Check if adding more quantity exceeds stock
-                if (cartItem.Quantity + quantity > availableStock)
+                if (cartItem.Quantity + quantity > productSize.Quantity)
                 {
-                    TempData["ErrorMessage"] = "Cannot add more items. Not enough stock.";
+                    TempData["ErrorMessage"] = "❌ Not enough stock for this size.";
                     return RedirectToAction("Index", "Products");
                 }
                 cartItem.Quantity += quantity;
@@ -106,67 +97,63 @@ namespace FinalGraduationProject.Controllers
             {
                 cartItem = new CartItem
                 {
-                    ProductId = productId,
-                    Quantity = quantity,
-                    CartId = userCart.Id
+                    CartId = userCart.Id,
+                    ProductSizeId = productSizeId,
+                    ProductId = productSize.ProductId, // <-- Add this line
+                    Quantity = quantity
                 };
-                _context.CartItems.Add(cartItem);
+                userCart.CartItems.Add(cartItem);
             }
 
             await _context.SaveChangesAsync();
 
-            // ✅ Add success message to TempData
-            TempData["CartMessage"] = "✅ Product added to cart!";
-
-            // ✅ Redirect back to products list
+            TempData["CartMessage"] = $"✅ Added {quantity} × {productSize.Product.Name} (Size {productSize.Size.Name})";
             return RedirectToAction("Index", "Products");
         }
 
-        // POST: Remove from cart
+        // POST: Remove item
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveFromCart(long cartItemId)
         {
             var cartItem = await _context.CartItems
-                .Include(ci => ci.Product)
+                .Include(ci => ci.ProductSize)
+                    .ThenInclude(ps => ps.Product)
+                .Include(ci => ci.ProductSize.Size)
                 .FirstOrDefaultAsync(ci => ci.Id == cartItemId);
-                
+
             if (cartItem != null)
             {
-                var productName = cartItem.Product?.Name ?? "Item";
+                var productName = cartItem.ProductSize.Product.Name;
+                var sizeName = cartItem.ProductSize.Size.Name;
                 _context.CartItems.Remove(cartItem);
                 await _context.SaveChangesAsync();
-                
-                TempData["SuccessMessage"] = $"✅ {productName} removed from cart!";
+
+                TempData["SuccessMessage"] = $"✅ {productName} (Size {sizeName}) removed from cart.";
             }
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Update quantity
+        // POST: Update quantity (+/- buttons)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateQuantity(long cartItemId, int change)
         {
             var cartItem = await _context.CartItems
-                                         .Include(ci => ci.Product)
-                                         .ThenInclude(p => p.Inventory)
-                                         .FirstOrDefaultAsync(ci => ci.Id == cartItemId);
-            if (cartItem == null)
-            {
-                return NotFound();
-            }
+                .Include(ci => ci.ProductSize)
+                .FirstOrDefaultAsync(ci => ci.Id == cartItemId);
 
-            int newQuantity = cartItem.Quantity + change;
+            if (cartItem == null) return NotFound();
 
-            if (cartItem.Product.Inventory != null && newQuantity > cartItem.Product.Inventory.QuantityAvailable)
-            {
-                ModelState.AddModelError("", "الكمية المطلوبة أكبر من المخزون المتوفر.");
-                return RedirectToAction(nameof(Index));
-            }
+            var newQuantity = cartItem.Quantity + change;
 
             if (newQuantity < 1)
             {
                 _context.CartItems.Remove(cartItem);
+            }
+            else if (newQuantity > cartItem.ProductSize.Quantity)
+            {
+                TempData["ErrorMessage"] = $"❌ Only {cartItem.ProductSize.Quantity} items available.";
             }
             else
             {
@@ -178,107 +165,95 @@ namespace FinalGraduationProject.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Update quantity directly (from input field)
+        // POST: Update quantity directly (input field)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateQuantityDirect(long cartItemId, int newQuantity)
         {
             var cartItem = await _context.CartItems
-                                         .Include(ci => ci.Product)
-                                         .ThenInclude(p => p.Inventory)
-                                         .FirstOrDefaultAsync(ci => ci.Id == cartItemId);
-            if (cartItem == null)
-            {
-                return NotFound();
-            }
+                .Include(ci => ci.ProductSize)
+                .FirstOrDefaultAsync(ci => ci.Id == cartItemId);
 
-            // Validate quantity
+            if (cartItem == null) return NotFound();
+
             if (newQuantity < 1)
             {
-                TempData["ErrorMessage"] = "Quantity must be at least 1.";
+                TempData["ErrorMessage"] = "❌ Quantity must be at least 1.";
                 return RedirectToAction(nameof(Index));
             }
 
-            var availableStock = cartItem.Product?.Inventory?.QuantityAvailable ?? 0;
-            if (newQuantity > availableStock)
+            if (newQuantity > cartItem.ProductSize.Quantity)
             {
-                TempData["ErrorMessage"] = $"Only {availableStock} items available in stock.";
+                TempData["ErrorMessage"] = $"❌ Only {cartItem.ProductSize.Quantity} items available.";
                 return RedirectToAction(nameof(Index));
             }
 
-            // Update quantity silently (no success message)
             cartItem.Quantity = newQuantity;
             _context.CartItems.Update(cartItem);
             await _context.SaveChangesAsync();
 
-            // No success message - just redirect back to cart
             return RedirectToAction(nameof(Index));
         }
 
-        // Helper method to calculate order totals
+        // ===== Helpers for totals =====
         private static decimal CalculateSubtotal(IEnumerable<CartItem> cartItems)
         {
-            return cartItems.Where(item => item.Product != null)
-                           .Sum(item => item.Product.Price * item.Quantity);
+            return cartItems.Sum(item => (item.ProductSize.Product.Price) * item.Quantity);
         }
 
-        private static decimal CalculateTax(decimal subtotal)
-        {
-            return subtotal * 0.14m; // 14% tax
-        }
+        private static decimal CalculateTax(decimal subtotal) => subtotal * 0.14m;
+        private static decimal CalculateShipping(decimal subtotal) => subtotal > 100 ? 0 : 10;
 
-        private static decimal CalculateShipping(decimal subtotal)
-        {
-            return subtotal > 100 ? 0 : 10; // Free shipping over $100
-        }
-
+        // POST: Checkout
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Checkout()
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!long.TryParse(userIdString, out long userId))
-            {
                 return RedirectToAction("Index", "Home");
-            }
 
-            // Get cart with products
             var userCart = await _context.Carts
-                                         .Include(c => c.CartItems)
-                                         .ThenInclude(ci => ci.Product)
-                                         .FirstOrDefaultAsync(c => c.UserId == userId);
+                .Include(c => c.CartItems)
+                    .ThenInclude(ci => ci.ProductSize)
+                        .ThenInclude(ps => ps.Product)
+                .FirstOrDefaultAsync(c => c.UserId == userId);
 
             if (userCart == null || !userCart.CartItems.Any())
                 return RedirectToAction(nameof(Index));
 
-            // Create the order
+            // Create order
             var order = new Order
             {
                 UserId = userId,
                 OrderDate = DateTime.UtcNow,
                 OrderItems = userCart.CartItems.Select(ci => new OrderItem
                 {
-                    ProductId = ci.ProductId,
+                    ProductSizeId = ci.ProductSizeId,
+                    ProductId = ci.ProductSize.ProductId, // <-- Fix: set ProductId
                     Quantity = ci.Quantity,
-                    Price = ci.Product?.Price ?? 0m
+                    Price = ci.ProductSize.Product.Price
                 }).ToList()
             };
 
-            // Calculate total amount using helper methods
             var subtotal = CalculateSubtotal(userCart.CartItems);
             var tax = CalculateTax(subtotal);
             var shipping = CalculateShipping(subtotal);
             order.TotalAmount = subtotal + tax + shipping;
 
-            // Add order to database
             _context.Orders.Add(order);
+
+            // ✅ Update stock quantities
+            foreach (var ci in userCart.CartItems)
+            {
+                ci.ProductSize.Quantity -= ci.Quantity;
+                _context.ProductSizes.Update(ci.ProductSize); // Ensure EF tracks the change
+            }
+
+            _context.CartItems.RemoveRange(userCart.CartItems);
             await _context.SaveChangesAsync();
 
-            // Redirect to payment page
             return RedirectToAction("Index", "Payment", new { orderId = order.Id });
         }
-
     }
-
 }
-

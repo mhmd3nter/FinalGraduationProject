@@ -10,6 +10,10 @@
         public long ProductId { get; set; }
         public Product Product { get; set; } = null!;
 
+        public long ProductSizeId { get; set; }
+        public ProductSize ProductSize { get; set; } = null!;
+
+
         public int Quantity { get; set; }
         public decimal Price { get; set; }
     }

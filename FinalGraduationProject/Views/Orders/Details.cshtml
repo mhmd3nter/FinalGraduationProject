@@ -1,0 +1,37 @@
+﻿@model FinalGraduationProject.Models.Order
+
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<h2>Order #@Model.Id Details</h2>
+<p><strong>Date:</strong> @Model.OrderDate.ToString("yyyy-MM-dd HH:mm")</p>
+<p><strong>Status:</strong> @Model.Status</p>
+<p><strong>Total:</strong> $@Model.TotalAmount.ToString("F2")</p>
+
+<h4>Items</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Size</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model.OrderItems)
+    {
+        <tr>
+            <td>@item.ProductSize.Product.Name</td>
+            <td>@item.ProductSize.Size.Name</td>
+            <td>@item.Quantity</td>
+            <td>$@item.Price.ToString("F2")</td>
+            <td>$@(item.Price * item.Quantity).ToString("F2")</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<a asp-action="MyOrders" class="btn btn-secondary">Back to Orders</a>

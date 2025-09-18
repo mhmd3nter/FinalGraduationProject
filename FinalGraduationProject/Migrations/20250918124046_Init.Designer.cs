@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinalGraduationProject.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250916180139_Init")]
+    [Migration("20250918124046_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -207,6 +207,9 @@ namespace FinalGraduationProject.Migrations
                     b.Property<long>("ProductId")
                         .HasColumnType("bigint");
 
+                    b.Property<long>("ProductSizeId")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -215,6 +218,8 @@ namespace FinalGraduationProject.Migrations
                     b.HasIndex("CartId");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("ProductSizeId");
 
                     b.ToTable("CartItems");
                 });
@@ -295,7 +300,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 1L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 1L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 24,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -305,7 +310,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 2L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 2L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 26,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -315,7 +320,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 3L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 3L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 33,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -325,7 +330,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 4L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 4L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 18,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -335,7 +340,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 5L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 5L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 25,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -345,7 +350,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 6L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 6L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 28,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -355,7 +360,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 7L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 7L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 21,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -365,7 +370,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 8L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 8L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 30,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -375,7 +380,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 9L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 9L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 25,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -385,7 +390,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 10L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 10L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 30,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -395,7 +400,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 11L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 11L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 32,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -405,7 +410,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 12L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 12L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 30,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -415,7 +420,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 13L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 13L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 35,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -425,7 +430,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 14L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 14L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 28,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -435,7 +440,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 15L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 15L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 30,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -445,7 +450,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 16L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 16L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 35,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -455,7 +460,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 17L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 17L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 32,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -465,7 +470,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 18L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 18L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 33,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -475,7 +480,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 19L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 19L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 55,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -485,7 +490,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 20L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 20L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 60,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -539,6 +544,9 @@ namespace FinalGraduationProject.Migrations
                     b.Property<long>("ProductId")
                         .HasColumnType("bigint");
 
+                    b.Property<long>("ProductSizeId")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -547,6 +555,8 @@ namespace FinalGraduationProject.Migrations
                     b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("ProductSizeId");
 
                     b.ToTable("OrderItems");
                 });
@@ -625,16 +635,13 @@ namespace FinalGraduationProject.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("Size")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("BrandId");
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("Name", "Size", "Color");
+                    b.HasIndex("Name", "Color");
 
                     b.ToTable("Products");
 
@@ -650,8 +657,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/nike_airzoom.jpg",
                             IsActive = true,
                             Name = "Nike Air Zoom",
-                            Price = 120m,
-                            Size = 42
+                            Price = 120m
                         },
                         new
                         {
@@ -664,8 +670,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/nike_revolution.jpg",
                             IsActive = true,
                             Name = "Nike Revolution",
-                            Price = 90m,
-                            Size = 38
+                            Price = 90m
                         },
                         new
                         {
@@ -678,8 +683,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/adidas_ultraboost.jpg",
                             IsActive = true,
                             Name = "Adidas Ultraboost",
-                            Price = 150m,
-                            Size = 43
+                            Price = 150m
                         },
                         new
                         {
@@ -692,8 +696,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/adidas_stansmith.jpg",
                             IsActive = true,
                             Name = "Adidas Stan Smith",
-                            Price = 100m,
-                            Size = 41
+                            Price = 100m
                         },
                         new
                         {
@@ -706,8 +709,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/puma_smash.jpg",
                             IsActive = true,
                             Name = "Puma Smash",
-                            Price = 85m,
-                            Size = 39
+                            Price = 85m
                         },
                         new
                         {
@@ -720,8 +722,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/nike_pegasus.jpg",
                             IsActive = true,
                             Name = "Nike Pegasus",
-                            Price = 130m,
-                            Size = 44
+                            Price = 130m
                         },
                         new
                         {
@@ -734,8 +735,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/adidas_gazelle.jpg",
                             IsActive = true,
                             Name = "Adidas Gazelle",
-                            Price = 95m,
-                            Size = 40
+                            Price = 95m
                         },
                         new
                         {
@@ -748,8 +748,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/puma_future.jpg",
                             IsActive = true,
                             Name = "Puma Future Rider",
-                            Price = 110m,
-                            Size = 42
+                            Price = 110m
                         },
                         new
                         {
@@ -762,8 +761,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/nike_courtvision.jpg",
                             IsActive = true,
                             Name = "Nike Court Vision",
-                            Price = 105m,
-                            Size = 43
+                            Price = 105m
                         },
                         new
                         {
@@ -776,8 +774,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/adidas_superstar.jpg",
                             IsActive = true,
                             Name = "Adidas Superstar",
-                            Price = 110m,
-                            Size = 37
+                            Price = 110m
                         },
                         new
                         {
@@ -790,8 +787,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/puma_rsx.jpg",
                             IsActive = true,
                             Name = "Puma RS-X",
-                            Price = 125m,
-                            Size = 42
+                            Price = 125m
                         },
                         new
                         {
@@ -804,8 +800,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/nike_airmax.jpg",
                             IsActive = true,
                             Name = "Nike Air Max",
-                            Price = 140m,
-                            Size = 39
+                            Price = 140m
                         },
                         new
                         {
@@ -818,8 +813,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/adidas_nmd.jpg",
                             IsActive = true,
                             Name = "Adidas NMD",
-                            Price = 160m,
-                            Size = 44
+                            Price = 160m
                         },
                         new
                         {
@@ -832,8 +826,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/puma_cali.jpg",
                             IsActive = true,
                             Name = "Puma Cali",
-                            Price = 90m,
-                            Size = 38
+                            Price = 90m
                         },
                         new
                         {
@@ -846,8 +839,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/nike_downshifter.jpg",
                             IsActive = true,
                             Name = "Nike Downshifter",
-                            Price = 75m,
-                            Size = 42
+                            Price = 75m
                         },
                         new
                         {
@@ -860,8 +852,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/adidas_zxflux.jpg",
                             IsActive = true,
                             Name = "Adidas ZX Flux",
-                            Price = 115m,
-                            Size = 41
+                            Price = 115m
                         },
                         new
                         {
@@ -874,8 +865,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/puma_ignite.jpg",
                             IsActive = true,
                             Name = "Puma Ignite",
-                            Price = 135m,
-                            Size = 43
+                            Price = 135m
                         },
                         new
                         {
@@ -888,8 +878,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/nike_blazer.jpg",
                             IsActive = true,
                             Name = "Nike Blazer",
-                            Price = 95m,
-                            Size = 42
+                            Price = 95m
                         },
                         new
                         {
@@ -902,8 +891,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/adidas_terrex.jpg",
                             IsActive = true,
                             Name = "Adidas Terrex",
-                            Price = 170m,
-                            Size = 45
+                            Price = 170m
                         },
                         new
                         {
@@ -916,9 +904,34 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/puma_enzo.jpg",
                             IsActive = true,
                             Name = "Puma Enzo",
-                            Price = 100m,
-                            Size = 38
+                            Price = 100m
                         });
+                });
+
+            modelBuilder.Entity("FinalGraduationProject.Models.ProductSize", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SizeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("SizeId");
+
+                    b.ToTable("ProductSizes");
                 });
 
             modelBuilder.Entity("FinalGraduationProject.Models.Shipment", b =>
@@ -976,6 +989,70 @@ namespace FinalGraduationProject.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ShippingMethods");
+                });
+
+            modelBuilder.Entity("FinalGraduationProject.Models.Size", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Sizes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "37"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "38"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "39"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "40"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "41"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "42"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "43"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "44"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Name = "45"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<long>", b =>
@@ -1147,9 +1224,17 @@ namespace FinalGraduationProject.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FinalGraduationProject.Models.ProductSize", "ProductSize")
+                        .WithMany()
+                        .HasForeignKey("ProductSizeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Cart");
 
                     b.Navigation("Product");
+
+                    b.Navigation("ProductSize");
                 });
 
             modelBuilder.Entity("FinalGraduationProject.Models.Inventory", b =>
@@ -1188,9 +1273,17 @@ namespace FinalGraduationProject.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FinalGraduationProject.Models.ProductSize", "ProductSize")
+                        .WithMany()
+                        .HasForeignKey("ProductSizeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Order");
 
                     b.Navigation("Product");
+
+                    b.Navigation("ProductSize");
                 });
 
             modelBuilder.Entity("FinalGraduationProject.Models.Payment", b =>
@@ -1221,6 +1314,25 @@ namespace FinalGraduationProject.Migrations
                     b.Navigation("Brand");
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("FinalGraduationProject.Models.ProductSize", b =>
+                {
+                    b.HasOne("FinalGraduationProject.Models.Product", "Product")
+                        .WithMany("ProductSizes")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FinalGraduationProject.Models.Size", "Size")
+                        .WithMany()
+                        .HasForeignKey("SizeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Size");
                 });
 
             modelBuilder.Entity("FinalGraduationProject.Models.Shipment", b =>
@@ -1333,6 +1445,8 @@ namespace FinalGraduationProject.Migrations
                     b.Navigation("Inventory");
 
                     b.Navigation("OrderItems");
+
+                    b.Navigation("ProductSizes");
                 });
 
             modelBuilder.Entity("FinalGraduationProject.Models.ShippingMethod", b =>

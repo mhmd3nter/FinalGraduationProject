@@ -15,11 +15,20 @@ namespace FinalGraduationProject.Controllers
         }
 
         // GET: Products
+        public IList<Product> Products { get; set; } = default!;
+
+
         public async Task<IActionResult> Index()
         {
+            Products = await _context.Products
+    .Include(p => p.Brand)
+    .Include(p => p.Category)
+    .Include(p => p.ProductSizes)
+        .ThenInclude(ps => ps.Size)
+    .ToListAsync();
+
             // استرجاع كل المنتجات من قاعدة البيانات
-            var products = await _context.Products.Include(p => p.Brand).Include(p => p.Category).ToListAsync();
-            return View(products);
+            return View(Products);
         }
 
         // GET: Products/Details/5
@@ -30,10 +39,11 @@ namespace FinalGraduationProject.Controllers
                 return NotFound();
             }
 
-            // البحث عن منتج بالـ Id
             var product = await _context.Products
                 .Include(p => p.Brand)
                 .Include(p => p.Category)
+                .Include(p => p.ProductSizes)
+                    .ThenInclude(ps => ps.Size)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (product == null)

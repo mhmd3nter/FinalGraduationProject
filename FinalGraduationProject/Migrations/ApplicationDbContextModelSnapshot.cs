@@ -204,6 +204,9 @@ namespace FinalGraduationProject.Migrations
                     b.Property<long>("ProductId")
                         .HasColumnType("bigint");
 
+                    b.Property<long>("ProductSizeId")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -212,6 +215,8 @@ namespace FinalGraduationProject.Migrations
                     b.HasIndex("CartId");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("ProductSizeId");
 
                     b.ToTable("CartItems");
                 });
@@ -292,7 +297,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 1L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 1L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 24,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -302,7 +307,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 2L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 2L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 26,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -312,7 +317,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 3L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 3L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 33,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -322,7 +327,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 4L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 4L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 18,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -332,7 +337,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 5L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 5L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 25,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -342,7 +347,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 6L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 6L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 28,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -352,7 +357,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 7L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 7L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 21,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -362,7 +367,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 8L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 8L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 30,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -372,7 +377,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 9L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 9L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 25,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -382,7 +387,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 10L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 10L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 30,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -392,7 +397,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 11L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 11L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 32,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -402,7 +407,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 12L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 12L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 30,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -412,7 +417,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 13L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 13L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 35,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -422,7 +427,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 14L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 14L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 28,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -432,7 +437,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 15L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 15L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 30,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -442,7 +447,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 16L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 16L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 35,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -452,7 +457,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 17L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 17L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 32,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -462,7 +467,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 18L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 18L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 33,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -472,7 +477,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 19L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 19L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 55,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -482,7 +487,7 @@ namespace FinalGraduationProject.Migrations
                             Id = 20L,
                             LastStockChangeAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ProductId = 20L,
-                            QuantityAvailable = 50,
+                            QuantityAvailable = 60,
                             QuantityReserved = 0,
                             RowVersion = new byte[0],
                             SafetyStockThreshold = 5
@@ -536,6 +541,9 @@ namespace FinalGraduationProject.Migrations
                     b.Property<long>("ProductId")
                         .HasColumnType("bigint");
 
+                    b.Property<long>("ProductSizeId")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -544,6 +552,8 @@ namespace FinalGraduationProject.Migrations
                     b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("ProductSizeId");
 
                     b.ToTable("OrderItems");
                 });
@@ -622,16 +632,13 @@ namespace FinalGraduationProject.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("Size")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("BrandId");
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("Name", "Size", "Color");
+                    b.HasIndex("Name", "Color");
 
                     b.ToTable("Products");
 
@@ -647,8 +654,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/nike_airzoom.jpg",
                             IsActive = true,
                             Name = "Nike Air Zoom",
-                            Price = 120m,
-                            Size = 42
+                            Price = 120m
                         },
                         new
                         {
@@ -661,8 +667,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/nike_revolution.jpg",
                             IsActive = true,
                             Name = "Nike Revolution",
-                            Price = 90m,
-                            Size = 38
+                            Price = 90m
                         },
                         new
                         {
@@ -675,8 +680,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/adidas_ultraboost.jpg",
                             IsActive = true,
                             Name = "Adidas Ultraboost",
-                            Price = 150m,
-                            Size = 43
+                            Price = 150m
                         },
                         new
                         {
@@ -689,8 +693,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/adidas_stansmith.jpg",
                             IsActive = true,
                             Name = "Adidas Stan Smith",
-                            Price = 100m,
-                            Size = 41
+                            Price = 100m
                         },
                         new
                         {
@@ -703,8 +706,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/puma_smash.jpg",
                             IsActive = true,
                             Name = "Puma Smash",
-                            Price = 85m,
-                            Size = 39
+                            Price = 85m
                         },
                         new
                         {
@@ -717,8 +719,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/nike_pegasus.jpg",
                             IsActive = true,
                             Name = "Nike Pegasus",
-                            Price = 130m,
-                            Size = 44
+                            Price = 130m
                         },
                         new
                         {
@@ -731,8 +732,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/adidas_gazelle.jpg",
                             IsActive = true,
                             Name = "Adidas Gazelle",
-                            Price = 95m,
-                            Size = 40
+                            Price = 95m
                         },
                         new
                         {
@@ -745,8 +745,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/puma_future.jpg",
                             IsActive = true,
                             Name = "Puma Future Rider",
-                            Price = 110m,
-                            Size = 42
+                            Price = 110m
                         },
                         new
                         {
@@ -759,8 +758,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/nike_courtvision.jpg",
                             IsActive = true,
                             Name = "Nike Court Vision",
-                            Price = 105m,
-                            Size = 43
+                            Price = 105m
                         },
                         new
                         {
@@ -773,8 +771,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/adidas_superstar.jpg",
                             IsActive = true,
                             Name = "Adidas Superstar",
-                            Price = 110m,
-                            Size = 37
+                            Price = 110m
                         },
                         new
                         {
@@ -787,8 +784,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/puma_rsx.jpg",
                             IsActive = true,
                             Name = "Puma RS-X",
-                            Price = 125m,
-                            Size = 42
+                            Price = 125m
                         },
                         new
                         {
@@ -801,8 +797,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/nike_airmax.jpg",
                             IsActive = true,
                             Name = "Nike Air Max",
-                            Price = 140m,
-                            Size = 39
+                            Price = 140m
                         },
                         new
                         {
@@ -815,8 +810,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/adidas_nmd.jpg",
                             IsActive = true,
                             Name = "Adidas NMD",
-                            Price = 160m,
-                            Size = 44
+                            Price = 160m
                         },
                         new
                         {
@@ -829,8 +823,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/puma_cali.jpg",
                             IsActive = true,
                             Name = "Puma Cali",
-                            Price = 90m,
-                            Size = 38
+                            Price = 90m
                         },
                         new
                         {
@@ -843,8 +836,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/nike_downshifter.jpg",
                             IsActive = true,
                             Name = "Nike Downshifter",
-                            Price = 75m,
-                            Size = 42
+                            Price = 75m
                         },
                         new
                         {
@@ -857,8 +849,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/adidas_zxflux.jpg",
                             IsActive = true,
                             Name = "Adidas ZX Flux",
-                            Price = 115m,
-                            Size = 41
+                            Price = 115m
                         },
                         new
                         {
@@ -871,8 +862,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/puma_ignite.jpg",
                             IsActive = true,
                             Name = "Puma Ignite",
-                            Price = 135m,
-                            Size = 43
+                            Price = 135m
                         },
                         new
                         {
@@ -885,8 +875,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/nike_blazer.jpg",
                             IsActive = true,
                             Name = "Nike Blazer",
-                            Price = 95m,
-                            Size = 42
+                            Price = 95m
                         },
                         new
                         {
@@ -899,8 +888,7 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/adidas_terrex.jpg",
                             IsActive = true,
                             Name = "Adidas Terrex",
-                            Price = 170m,
-                            Size = 45
+                            Price = 170m
                         },
                         new
                         {
@@ -913,8 +901,455 @@ namespace FinalGraduationProject.Migrations
                             ImageUrl = "/images/puma_enzo.jpg",
                             IsActive = true,
                             Name = "Puma Enzo",
-                            Price = 100m,
-                            Size = 38
+                            Price = 100m
+                        });
+                });
+
+            modelBuilder.Entity("FinalGraduationProject.Models.ProductSize", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SizeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("SizeId");
+
+                    b.ToTable("ProductSizes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            ProductId = 1L,
+                            Quantity = 10,
+                            SizeId = 5
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            ProductId = 1L,
+                            Quantity = 8,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            ProductId = 1L,
+                            Quantity = 6,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            ProductId = 2L,
+                            Quantity = 10,
+                            SizeId = 1
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            ProductId = 2L,
+                            Quantity = 9,
+                            SizeId = 2
+                        },
+                        new
+                        {
+                            Id = 6L,
+                            ProductId = 2L,
+                            Quantity = 7,
+                            SizeId = 3
+                        },
+                        new
+                        {
+                            Id = 7L,
+                            ProductId = 3L,
+                            Quantity = 12,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 8L,
+                            ProductId = 3L,
+                            Quantity = 11,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 9L,
+                            ProductId = 3L,
+                            Quantity = 10,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 10L,
+                            ProductId = 4L,
+                            Quantity = 6,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 11L,
+                            ProductId = 4L,
+                            Quantity = 6,
+                            SizeId = 5
+                        },
+                        new
+                        {
+                            Id = 12L,
+                            ProductId = 4L,
+                            Quantity = 6,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 13L,
+                            ProductId = 5L,
+                            Quantity = 10,
+                            SizeId = 2
+                        },
+                        new
+                        {
+                            Id = 14L,
+                            ProductId = 5L,
+                            Quantity = 9,
+                            SizeId = 3
+                        },
+                        new
+                        {
+                            Id = 15L,
+                            ProductId = 5L,
+                            Quantity = 6,
+                            SizeId = 4
+                        },
+                        new
+                        {
+                            Id = 16L,
+                            ProductId = 6L,
+                            Quantity = 10,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 17L,
+                            ProductId = 6L,
+                            Quantity = 9,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 18L,
+                            ProductId = 6L,
+                            Quantity = 9,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 19L,
+                            ProductId = 7L,
+                            Quantity = 7,
+                            SizeId = 5
+                        },
+                        new
+                        {
+                            Id = 20L,
+                            ProductId = 7L,
+                            Quantity = 7,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 21L,
+                            ProductId = 7L,
+                            Quantity = 7,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 22L,
+                            ProductId = 8L,
+                            Quantity = 10,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 23L,
+                            ProductId = 8L,
+                            Quantity = 10,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 24L,
+                            ProductId = 8L,
+                            Quantity = 10,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 25L,
+                            ProductId = 9L,
+                            Quantity = 9,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 26L,
+                            ProductId = 9L,
+                            Quantity = 8,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 27L,
+                            ProductId = 9L,
+                            Quantity = 8,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 28L,
+                            ProductId = 10L,
+                            Quantity = 10,
+                            SizeId = 1
+                        },
+                        new
+                        {
+                            Id = 29L,
+                            ProductId = 10L,
+                            Quantity = 10,
+                            SizeId = 2
+                        },
+                        new
+                        {
+                            Id = 30L,
+                            ProductId = 10L,
+                            Quantity = 10,
+                            SizeId = 3
+                        },
+                        new
+                        {
+                            Id = 31L,
+                            ProductId = 11L,
+                            Quantity = 11,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 32L,
+                            ProductId = 11L,
+                            Quantity = 11,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 33L,
+                            ProductId = 11L,
+                            Quantity = 10,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 34L,
+                            ProductId = 12L,
+                            Quantity = 10,
+                            SizeId = 1
+                        },
+                        new
+                        {
+                            Id = 35L,
+                            ProductId = 12L,
+                            Quantity = 10,
+                            SizeId = 2
+                        },
+                        new
+                        {
+                            Id = 36L,
+                            ProductId = 12L,
+                            Quantity = 10,
+                            SizeId = 3
+                        },
+                        new
+                        {
+                            Id = 37L,
+                            ProductId = 13L,
+                            Quantity = 12,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 38L,
+                            ProductId = 13L,
+                            Quantity = 12,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 39L,
+                            ProductId = 13L,
+                            Quantity = 11,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 40L,
+                            ProductId = 14L,
+                            Quantity = 10,
+                            SizeId = 1
+                        },
+                        new
+                        {
+                            Id = 41L,
+                            ProductId = 14L,
+                            Quantity = 9,
+                            SizeId = 2
+                        },
+                        new
+                        {
+                            Id = 42L,
+                            ProductId = 14L,
+                            Quantity = 9,
+                            SizeId = 3
+                        },
+                        new
+                        {
+                            Id = 43L,
+                            ProductId = 15L,
+                            Quantity = 10,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 44L,
+                            ProductId = 15L,
+                            Quantity = 10,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 45L,
+                            ProductId = 15L,
+                            Quantity = 10,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 46L,
+                            ProductId = 16L,
+                            Quantity = 12,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 47L,
+                            ProductId = 16L,
+                            Quantity = 12,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 48L,
+                            ProductId = 16L,
+                            Quantity = 11,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 49L,
+                            ProductId = 17L,
+                            Quantity = 11,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 50L,
+                            ProductId = 17L,
+                            Quantity = 11,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 51L,
+                            ProductId = 17L,
+                            Quantity = 10,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 52L,
+                            ProductId = 18L,
+                            Quantity = 11,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 53L,
+                            ProductId = 18L,
+                            Quantity = 11,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 54L,
+                            ProductId = 18L,
+                            Quantity = 11,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 55L,
+                            ProductId = 19L,
+                            Quantity = 20,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 56L,
+                            ProductId = 19L,
+                            Quantity = 20,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 57L,
+                            ProductId = 19L,
+                            Quantity = 15,
+                            SizeId = 9
+                        },
+                        new
+                        {
+                            Id = 58L,
+                            ProductId = 20L,
+                            Quantity = 20,
+                            SizeId = 1
+                        },
+                        new
+                        {
+                            Id = 59L,
+                            ProductId = 20L,
+                            Quantity = 20,
+                            SizeId = 2
+                        },
+                        new
+                        {
+                            Id = 60L,
+                            ProductId = 20L,
+                            Quantity = 20,
+                            SizeId = 3
                         });
                 });
 
@@ -973,6 +1408,70 @@ namespace FinalGraduationProject.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ShippingMethods");
+                });
+
+            modelBuilder.Entity("FinalGraduationProject.Models.Size", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Sizes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "37"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "38"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "39"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "40"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "41"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "42"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "43"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "44"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Name = "45"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<long>", b =>
@@ -1144,9 +1643,17 @@ namespace FinalGraduationProject.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FinalGraduationProject.Models.ProductSize", "ProductSize")
+                        .WithMany()
+                        .HasForeignKey("ProductSizeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Cart");
 
                     b.Navigation("Product");
+
+                    b.Navigation("ProductSize");
                 });
 
             modelBuilder.Entity("FinalGraduationProject.Models.Inventory", b =>
@@ -1185,9 +1692,17 @@ namespace FinalGraduationProject.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FinalGraduationProject.Models.ProductSize", "ProductSize")
+                        .WithMany()
+                        .HasForeignKey("ProductSizeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Order");
 
                     b.Navigation("Product");
+
+                    b.Navigation("ProductSize");
                 });
 
             modelBuilder.Entity("FinalGraduationProject.Models.Payment", b =>
@@ -1218,6 +1733,25 @@ namespace FinalGraduationProject.Migrations
                     b.Navigation("Brand");
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("FinalGraduationProject.Models.ProductSize", b =>
+                {
+                    b.HasOne("FinalGraduationProject.Models.Product", "Product")
+                        .WithMany("ProductSizes")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FinalGraduationProject.Models.Size", "Size")
+                        .WithMany()
+                        .HasForeignKey("SizeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Size");
                 });
 
             modelBuilder.Entity("FinalGraduationProject.Models.Shipment", b =>
@@ -1330,6 +1864,8 @@ namespace FinalGraduationProject.Migrations
                     b.Navigation("Inventory");
 
                     b.Navigation("OrderItems");
+
+                    b.Navigation("ProductSizes");
                 });
 
             modelBuilder.Entity("FinalGraduationProject.Models.ShippingMethod", b =>
