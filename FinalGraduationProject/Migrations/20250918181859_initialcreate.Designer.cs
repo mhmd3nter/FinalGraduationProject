@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinalGraduationProject.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250918124046_Init")]
-    partial class Init
+    [Migration("20250918181859_initialcreate")]
+    partial class initialcreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -932,6 +932,428 @@ namespace FinalGraduationProject.Migrations
                     b.HasIndex("SizeId");
 
                     b.ToTable("ProductSizes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            ProductId = 1L,
+                            Quantity = 10,
+                            SizeId = 5
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            ProductId = 1L,
+                            Quantity = 8,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            ProductId = 1L,
+                            Quantity = 6,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            ProductId = 2L,
+                            Quantity = 10,
+                            SizeId = 1
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            ProductId = 2L,
+                            Quantity = 9,
+                            SizeId = 2
+                        },
+                        new
+                        {
+                            Id = 6L,
+                            ProductId = 2L,
+                            Quantity = 7,
+                            SizeId = 3
+                        },
+                        new
+                        {
+                            Id = 7L,
+                            ProductId = 3L,
+                            Quantity = 12,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 8L,
+                            ProductId = 3L,
+                            Quantity = 11,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 9L,
+                            ProductId = 3L,
+                            Quantity = 10,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 10L,
+                            ProductId = 4L,
+                            Quantity = 6,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 11L,
+                            ProductId = 4L,
+                            Quantity = 6,
+                            SizeId = 5
+                        },
+                        new
+                        {
+                            Id = 12L,
+                            ProductId = 4L,
+                            Quantity = 6,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 13L,
+                            ProductId = 5L,
+                            Quantity = 10,
+                            SizeId = 2
+                        },
+                        new
+                        {
+                            Id = 14L,
+                            ProductId = 5L,
+                            Quantity = 9,
+                            SizeId = 3
+                        },
+                        new
+                        {
+                            Id = 15L,
+                            ProductId = 5L,
+                            Quantity = 6,
+                            SizeId = 4
+                        },
+                        new
+                        {
+                            Id = 16L,
+                            ProductId = 6L,
+                            Quantity = 10,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 17L,
+                            ProductId = 6L,
+                            Quantity = 9,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 18L,
+                            ProductId = 6L,
+                            Quantity = 9,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 19L,
+                            ProductId = 7L,
+                            Quantity = 7,
+                            SizeId = 5
+                        },
+                        new
+                        {
+                            Id = 20L,
+                            ProductId = 7L,
+                            Quantity = 7,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 21L,
+                            ProductId = 7L,
+                            Quantity = 7,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 22L,
+                            ProductId = 8L,
+                            Quantity = 10,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 23L,
+                            ProductId = 8L,
+                            Quantity = 10,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 24L,
+                            ProductId = 8L,
+                            Quantity = 10,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 25L,
+                            ProductId = 9L,
+                            Quantity = 9,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 26L,
+                            ProductId = 9L,
+                            Quantity = 8,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 27L,
+                            ProductId = 9L,
+                            Quantity = 8,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 28L,
+                            ProductId = 10L,
+                            Quantity = 10,
+                            SizeId = 1
+                        },
+                        new
+                        {
+                            Id = 29L,
+                            ProductId = 10L,
+                            Quantity = 10,
+                            SizeId = 2
+                        },
+                        new
+                        {
+                            Id = 30L,
+                            ProductId = 10L,
+                            Quantity = 10,
+                            SizeId = 3
+                        },
+                        new
+                        {
+                            Id = 31L,
+                            ProductId = 11L,
+                            Quantity = 11,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 32L,
+                            ProductId = 11L,
+                            Quantity = 11,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 33L,
+                            ProductId = 11L,
+                            Quantity = 10,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 34L,
+                            ProductId = 12L,
+                            Quantity = 10,
+                            SizeId = 1
+                        },
+                        new
+                        {
+                            Id = 35L,
+                            ProductId = 12L,
+                            Quantity = 10,
+                            SizeId = 2
+                        },
+                        new
+                        {
+                            Id = 36L,
+                            ProductId = 12L,
+                            Quantity = 10,
+                            SizeId = 3
+                        },
+                        new
+                        {
+                            Id = 37L,
+                            ProductId = 13L,
+                            Quantity = 12,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 38L,
+                            ProductId = 13L,
+                            Quantity = 12,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 39L,
+                            ProductId = 13L,
+                            Quantity = 11,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 40L,
+                            ProductId = 14L,
+                            Quantity = 10,
+                            SizeId = 1
+                        },
+                        new
+                        {
+                            Id = 41L,
+                            ProductId = 14L,
+                            Quantity = 9,
+                            SizeId = 2
+                        },
+                        new
+                        {
+                            Id = 42L,
+                            ProductId = 14L,
+                            Quantity = 9,
+                            SizeId = 3
+                        },
+                        new
+                        {
+                            Id = 43L,
+                            ProductId = 15L,
+                            Quantity = 10,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 44L,
+                            ProductId = 15L,
+                            Quantity = 10,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 45L,
+                            ProductId = 15L,
+                            Quantity = 10,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 46L,
+                            ProductId = 16L,
+                            Quantity = 12,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 47L,
+                            ProductId = 16L,
+                            Quantity = 12,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 48L,
+                            ProductId = 16L,
+                            Quantity = 11,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 49L,
+                            ProductId = 17L,
+                            Quantity = 11,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 50L,
+                            ProductId = 17L,
+                            Quantity = 11,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 51L,
+                            ProductId = 17L,
+                            Quantity = 10,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 52L,
+                            ProductId = 18L,
+                            Quantity = 11,
+                            SizeId = 6
+                        },
+                        new
+                        {
+                            Id = 53L,
+                            ProductId = 18L,
+                            Quantity = 11,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 54L,
+                            ProductId = 18L,
+                            Quantity = 11,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 55L,
+                            ProductId = 19L,
+                            Quantity = 20,
+                            SizeId = 7
+                        },
+                        new
+                        {
+                            Id = 56L,
+                            ProductId = 19L,
+                            Quantity = 20,
+                            SizeId = 8
+                        },
+                        new
+                        {
+                            Id = 57L,
+                            ProductId = 19L,
+                            Quantity = 15,
+                            SizeId = 9
+                        },
+                        new
+                        {
+                            Id = 58L,
+                            ProductId = 20L,
+                            Quantity = 20,
+                            SizeId = 1
+                        },
+                        new
+                        {
+                            Id = 59L,
+                            ProductId = 20L,
+                            Quantity = 20,
+                            SizeId = 2
+                        },
+                        new
+                        {
+                            Id = 60L,
+                            ProductId = 20L,
+                            Quantity = 20,
+                            SizeId = 3
+                        });
                 });
 
             modelBuilder.Entity("FinalGraduationProject.Models.Shipment", b =>

@@ -1,33 +1,84 @@
 ﻿@model FinalGraduationProject.Models.Product
 
-<h2>@Model.Name</h2>
-<img src="@Url.Content(Model.ImageUrl)" alt="Model.Name" class="img-fluid">
-<p>@Model.Description</p>
-<p><strong>Brand:</strong> @Model.Brand.Name</p>
-<p><strong>Category:</strong> @Model.Category.Name</p>
-<p><strong>Price:</strong> $@Model.Price</p>
-<p><strong>Color:</strong> @Model.Color</p>
+@{
+    ViewData["Title"] = Model.Name;
+}
 
-<form asp-controller="Carts" asp-action="AddToCart" method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" name="productId" value="@Model.Id" />
-    <input type="hidden" name="quantity" value="1" />
+<main class="page py-5" style="background:#f8f9fa;">
+    <div class="container">
+        <div class="row g-5">
+            <!-- صورة المنتج -->
+            <div class="col-md-5">
+                <div class="border rounded shadow-sm p-2 bg-white">
+                    <img src="@Url.Content(Model.ImageUrl)"
+                         alt="@Model.Name"
+                         class="img-fluid rounded"
+                         style="object-fit:cover; max-height:450px; width:100%;" />
+                </div>
+            </div>
 
-    <div class="mb-3">
-        <label for="productSizeId" class="form-label">Size</label>
-        <select name="productSizeId" id="productSizeId" class="form-select" required>
-            <option value="">Select Size</option>
-            @foreach (var ps in Model.ProductSizes)
-            {
-                <option value="@ps.Id">@ps.Size.Name</option>
-            }
-        </select>
+            <!-- تفاصيل المنتج -->
+            <div class="col-md-7">
+                <h2 class="fw-bold mb-3 text-primary">@Model.Name</h2>
+                <p class="text-muted">@Model.Description</p>
+
+                <ul class="list-unstyled mb-4">
+                    <li><strong>Brand:</strong> @Model.Brand?.Name</li>
+                    <li><strong>Category:</strong> @Model.Category?.Name</li>
+                    <li><strong>Color:</strong> @Model.Color</li>
+                </ul>
+
+                <!-- السعر بنفس لون صفحة البرودكت -->
+                <h3 class="mb-4 text-primary">$@Model.Price</h3>
+
+                <!-- زرار Add to Cart بنفس ستايل زر Back to Products -->
+                <form asp-controller="Carts" asp-action="AddToCart" method="post" class="mb-4">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="productId" value="@Model.Id" />
+                    <input type="hidden" name="quantity" value="1" />
+
+                    <div class="mb-3">
+                        <label for="productSizeId" class="form-label fw-semibold">Select Size</label>
+                        <select name="productSizeId" id="productSizeId"
+                                class="form-select shadow-sm" required>
+                            <option value="">Choose size</option>
+                            @foreach (var ps in Model.ProductSizes)
+                            {
+                                <option value="@ps.Id">@ps.Size.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-outline-secondary btn-lg mb-4 shadow-sm add-to-cart-btn">
+                        <i class="fas fa-shopping-cart me-2"></i> Add to Cart
+                    </button>
+                </form>
+
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Products
+                </a>
+            </div>
+        </div>
     </div>
+</main>
 
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
 
-    <button type="submit" class="btn btn-primary">Add to Cart</button>
-</form>
+<style>
+    .page {
+        min-height: 80vh;
+    }
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    .form-select {
+        border-radius: .5rem;
+    }
+
+    /* Match Add to Cart hover with Back to Products hover */
+    .add-to-cart-btn:hover, .add-to-cart-btn:focus {
+        background-color: #6c757d !important; /* Bootstrap secondary */
+        color: #fff !important;
+        border-color: #6c757d !important;
+        transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+</style>
