@@ -1,5 +1,4 @@
 ﻿using FinalGraduationProject.Data;
-using FinalGraduationProject.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -60,6 +59,9 @@ namespace FinalGraduationProject.Controllers
 
             return View(order);
         }
+
+
+
 
         // Admin: Manage all orders
         [Authorize(Roles = "Admin")]
@@ -125,7 +127,7 @@ namespace FinalGraduationProject.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(long id)
+        public async Task<IActionResult> Cancel(long id)
         {
             var userIdString = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
             if (!long.TryParse(userIdString, out long userId))
@@ -137,9 +139,10 @@ namespace FinalGraduationProject.Controllers
             if (order == null)
                 return NotFound();
 
-            if (order.Status != "Confirmed")
+            // Allow cancel if status is "Pending" or "Confirmed"
+            if (order.Status != "Pending" && order.Status != "Confirmed")
             {
-                TempData["ErrorMessage"] = "You can only delete orders with status 'Confirmed'.";
+                TempData["ErrorMessage"] = "You can only delete orders with status 'Pending' or 'Confirmed'.";
                 return RedirectToAction("MyOrders");
             }
 
