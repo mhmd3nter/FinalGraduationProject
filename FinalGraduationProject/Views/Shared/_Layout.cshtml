@@ -47,35 +47,14 @@
         </main>
     </div>
 
-    <!-- ✅ Toast Notification Container -->
-    @if (TempData["CartMessage"] != null)
-    {
-        <div class="toast-container position-fixed bottom-0 end-0 p-3">
-            <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body">
-                        @TempData["CartMessage"]
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-            </div>
-        </div>
-    }
-
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2025 - FinalGraduationProject - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
-
-    <!-- ✅ Scripts -->
+    
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-
-    <!-- ✅ Bootstrap Bundle CDN for JS (Toast support) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+EijwB1p1gchFhYXyZ5n+vvL4v5zK"
-            crossorigin="anonymous"></script>
-
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

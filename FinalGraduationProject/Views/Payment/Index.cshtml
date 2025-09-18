@@ -1,0 +1,140 @@
+@model FinalGraduationProject.Models.Order
+
+@{
+    ViewData["Title"] = "Payment Options";
+}
+
+<div class="container mt-4">
+    <h2><i class="fas fa-credit-card"></i> Choose Payment Method</h2>
+
+    <!-- Display any error messages -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <div class="row">
+        <!-- Order Summary with Tax and Shipping -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-receipt"></i> Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Items List -->
+                    @foreach (var item in Model.OrderItems)
+                    {
+                        <div class="d-flex justify-content-between">
+                            <span>@item.Product.Name x @item.Quantity</span>
+                            <span>$@(item.Price * item.Quantity)</span>
+                        </div>
+                    }
+                    <hr>
+                    
+                    <!-- Calculate totals -->
+                    @{
+                        var subtotal = Model.OrderItems.Sum(oi => oi.Price * oi.Quantity);
+                        var tax = subtotal * 0.14m;
+                        var shipping = subtotal > 100 ? 0 : 10;
+                        var calculatedTotal = subtotal + tax + shipping;
+                    }
+                    
+                    <!-- Summary breakdown -->
+                    <div class="d-flex justify-content-between">
+                        <span>Subtotal:</span>
+                        <span>$@subtotal.ToString("F2")</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Tax (14%):</span>
+                        <span>$@tax.ToString("F2")</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Shipping:</span>
+                        <span>
+                            @if (shipping == 0)
+                            {
+                                <span class="text-success">FREE</span>
+                            }
+                            else
+                            {
+                                <span>$@shipping.ToString("F2")</span>
+                            }
+                        </span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold h5">
+                        <span>Total:</span>
+                        <span>$@Model.TotalAmount.ToString("F2")</span>
+                    </div>
+                    
+                    @if (subtotal < 100)
+                    {
+                        <small class="text-info">
+                            <i class="fas fa-info-circle"></i> Orders over $100 get free shipping!
+                        </small>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-money-bill-wave"></i> Payment Methods</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Cash on Delivery -->
+                    <div class="payment-option mb-3">
+                        <form asp-action="ProcessPayment" method="post">
+                            <input type="hidden" name="orderId" value="@Model.Id" />
+                            <input type="hidden" name="paymentMethod" value="Cash" />
+                            <button type="submit" class="btn btn-outline-success w-100 p-3">
+                                <i class="fas fa-money-bill"></i>
+                                <div>
+                                    <strong>Cash on Delivery</strong><br>
+                                    <small>Pay when you receive your order</small>
+                                </div>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Paymob Payment -->
+                    <div class="payment-option mb-3">
+                        <form asp-action="ProcessPayment" method="post">
+                            <input type="hidden" name="orderId" value="@Model.Id" />
+                            <input type="hidden" name="paymentMethod" value="Paymob" />
+                            <button type="submit" class="btn btn-outline-primary w-100 p-3">
+                                <i class="fas fa-credit-card"></i>
+                                <div>
+                                    <strong>Pay with Paymob</strong><br>
+                                    <small>Credit Card, Debit Card, or Mobile Wallet</small>
+                                </div>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Back to Cart -->
+                    <a href="@Url.Action("Index", "Carts")" class="btn btn-secondary w-100">
+                        <i class="fas fa-arrow-left"></i> Back to Cart
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.payment-option .btn {
+    text-align: left;
+    border: 2px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.payment-option .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+</style>

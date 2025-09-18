@@ -36,6 +36,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 // 🟢 تسجيل خدمة الإيميل
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
+// 🟢 Register Paymob service
+builder.Services.AddHttpClient<PaymobService>();
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 

@@ -55,3 +55,61 @@ body {
 .row {
     margin-top: 20px;
 }
+
+/* Cart Specific Styles */
+.cart-item-image {
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+}
+
+.cart-item-image:hover {
+    transform: scale(1.05);
+}
+
+.quantity-control .btn {
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quantity-input {
+    border-radius: 8px;
+    border: 2px solid #dee2e6;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+/* Remove spinner arrows for all number inputs */
+input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+}
+
+/* Remove spinner arrows for Chrome, Safari, Edge */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.quantity-input:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    background: white;
+}
+
+.quantity-input:hover {
+    border-color: #0d6efd;
+    background: white;
+}
+
+.progress-bar {
+    transition: width 0.3s ease;
+}
+
+.cart-summary {
+    position: sticky;
+    top: 20px;
+}

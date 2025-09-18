@@ -29,7 +29,10 @@ namespace FinalGraduationProject.Controllers
             var userCart = await _context.Carts
                                          .Include(c => c.CartItems)
                                          .ThenInclude(ci => ci.Product)
-                                         .ThenInclude(p => p.Inventory)
+                                         .ThenInclude(p => p.Brand) // Include Brand for display
+                                         .Include(c => c.CartItems)
+                                         .ThenInclude(ci => ci.Product)
+                                         .ThenInclude(p => p.Inventory) // 🔧 FIX: Include Inventory
                                          .FirstOrDefaultAsync(c => c.UserId == userId);
 
             if (userCart == null)
@@ -37,6 +40,9 @@ namespace FinalGraduationProject.Controllers
                 userCart = new Cart { UserId = userId };
                 _context.Carts.Add(userCart);
                 await _context.SaveChangesAsync();
+                
+                // Return empty cart items since we just created the cart
+                return View(new List<CartItem>());
             }
 
             return View(userCart.CartItems);
@@ -54,6 +60,25 @@ namespace FinalGraduationProject.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
+            // Check if product exists and has stock
+            var product = await _context.Products
+                .Include(p => p.Inventory)
+                .FirstOrDefaultAsync(p => p.Id == productId);
+
+            if (product == null)
+            {
+                TempData["ErrorMessage"] = "Product not found.";
+                return RedirectToAction("Index", "Products");
+            }
+
+            // Check stock availability
+            var availableStock = product.Inventory?.QuantityAvailable ?? 0;
+            if (availableStock < quantity)
+            {
+                TempData["ErrorMessage"] = "Not enough stock available.";
+                return RedirectToAction("Index", "Products");
+            }
+
             var userCart = await _context.Carts
                                          .Include(c => c.CartItems)
                                          .FirstOrDefaultAsync(c => c.UserId == userId);
@@ -62,12 +87,19 @@ namespace FinalGraduationProject.Controllers
             {
                 userCart = new Cart { UserId = userId };
                 _context.Carts.Add(userCart);
+                await _context.SaveChangesAsync(); // Save to get the cart ID
             }
 
             var cartItem = userCart.CartItems.FirstOrDefault(ci => ci.ProductId == productId);
 
             if (cartItem != null)
             {
+                // Check if adding more quantity exceeds stock
+                if (cartItem.Quantity + quantity > availableStock)
+                {
+                    TempData["ErrorMessage"] = "Cannot add more items. Not enough stock.";
+                    return RedirectToAction("Index", "Products");
+                }
                 cartItem.Quantity += quantity;
             }
             else
@@ -78,7 +110,7 @@ namespace FinalGraduationProject.Controllers
                     Quantity = quantity,
                     CartId = userCart.Id
                 };
-                userCart.CartItems.Add(cartItem);
+                _context.CartItems.Add(cartItem);
             }
 
             await _context.SaveChangesAsync();
@@ -95,11 +127,17 @@ namespace FinalGraduationProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveFromCart(long cartItemId)
         {
-            var cartItem = await _context.CartItems.FindAsync(cartItemId);
+            var cartItem = await _context.CartItems
+                .Include(ci => ci.Product)
+                .FirstOrDefaultAsync(ci => ci.Id == cartItemId);
+                
             if (cartItem != null)
             {
+                var productName = cartItem.Product?.Name ?? "Item";
                 _context.CartItems.Remove(cartItem);
                 await _context.SaveChangesAsync();
+                
+                TempData["SuccessMessage"] = $"✅ {productName} removed from cart!";
             }
             return RedirectToAction(nameof(Index));
         }
@@ -140,7 +178,59 @@ namespace FinalGraduationProject.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // POST: Update quantity directly (from input field)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateQuantityDirect(long cartItemId, int newQuantity)
+        {
+            var cartItem = await _context.CartItems
+                                         .Include(ci => ci.Product)
+                                         .ThenInclude(p => p.Inventory)
+                                         .FirstOrDefaultAsync(ci => ci.Id == cartItemId);
+            if (cartItem == null)
+            {
+                return NotFound();
+            }
 
+            // Validate quantity
+            if (newQuantity < 1)
+            {
+                TempData["ErrorMessage"] = "Quantity must be at least 1.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var availableStock = cartItem.Product?.Inventory?.QuantityAvailable ?? 0;
+            if (newQuantity > availableStock)
+            {
+                TempData["ErrorMessage"] = $"Only {availableStock} items available in stock.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Update quantity silently (no success message)
+            cartItem.Quantity = newQuantity;
+            _context.CartItems.Update(cartItem);
+            await _context.SaveChangesAsync();
+
+            // No success message - just redirect back to cart
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Helper method to calculate order totals
+        private static decimal CalculateSubtotal(IEnumerable<CartItem> cartItems)
+        {
+            return cartItems.Where(item => item.Product != null)
+                           .Sum(item => item.Product.Price * item.Quantity);
+        }
+
+        private static decimal CalculateTax(decimal subtotal)
+        {
+            return subtotal * 0.14m; // 14% tax
+        }
+
+        private static decimal CalculateShipping(decimal subtotal)
+        {
+            return subtotal > 100 ? 0 : 10; // Free shipping over $100
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -152,7 +242,7 @@ namespace FinalGraduationProject.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // جلب السلة مع المنتجات
+            // Get cart with products
             var userCart = await _context.Carts
                                          .Include(c => c.CartItems)
                                          .ThenInclude(ci => ci.Product)
@@ -161,31 +251,31 @@ namespace FinalGraduationProject.Controllers
             if (userCart == null || !userCart.CartItems.Any())
                 return RedirectToAction(nameof(Index));
 
-            // إنشاء الطلب (مهم: OrderDate في Order مش في OrderItem)
+            // Create the order
             var order = new Order
             {
                 UserId = userId,
-                OrderDate = DateTime.UtcNow, // أو DateTime.Now لو تفضل
+                OrderDate = DateTime.UtcNow,
                 OrderItems = userCart.CartItems.Select(ci => new OrderItem
                 {
                     ProductId = ci.ProductId,
                     Quantity = ci.Quantity,
-                    // لو Product.Price nullable استخدم ?? 0m
-                    Price = (ci.Product?.Price ?? 0m)
+                    Price = ci.Product?.Price ?? 0m
                 }).ToList()
             };
 
-            // حساب المجموع الكلي
-            order.TotalAmount = order.OrderItems.Sum(oi => oi.Price * oi.Quantity);
+            // Calculate total amount using helper methods
+            var subtotal = CalculateSubtotal(userCart.CartItems);
+            var tax = CalculateTax(subtotal);
+            var shipping = CalculateShipping(subtotal);
+            order.TotalAmount = subtotal + tax + shipping;
 
-            // إضافة الطلب وحذف السلة
+            // Add order to database
             _context.Orders.Add(order);
-
-
             await _context.SaveChangesAsync();
 
-            // تحويل لصفحة اختيار الشحن مع id الطلب
-            return RedirectToAction("Create", "Shipments", new { orderId = order.Id });
+            // Redirect to payment page
+            return RedirectToAction("Index", "Payment", new { orderId = order.Id });
         }
 
     }
