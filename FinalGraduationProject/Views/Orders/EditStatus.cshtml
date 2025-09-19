@@ -4,23 +4,47 @@
     ViewData["Title"] = "Edit Order Status";
 }
 
-<h2>Edit Order Status</h2>
+<div class="container py-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+                <i class="fas fa-tasks me-2"></i> @ViewData["Title"]
+            </h4>
+        </div>
 
-<form asp-action="EditStatus" method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" name="id" value="@Model.Id" />
+        <div class="card-body">
+            <form asp-action="EditStatus" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
 
-    <div class="mb-3">
-        <label for="status" class="form-label">Order Status</label>
-        <select name="status" id="status" class="form-select">
-            <option value="Pending" selected="@(Model.Status == "Pending" ? "selected" : null)">Pending</option>
-            <option value="Paid" selected="@(Model.Status == "Paid" ? "selected" : null)">Paid</option>
-            <option value="Shipped" selected="@(Model.Status == "Shipped" ? "selected" : null)">Shipped</option>
-            <option value="Completed" selected="@(Model.Status == "Completed" ? "selected" : null)">Completed</option>
-            <option value="Cancelled" selected="@(Model.Status == "Cancelled" ? "selected" : null)">Cancelled</option>
-        </select>
+                <div class="mb-3">
+                    <label for="status" class="form-label">Order Status</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="Pending" selected="@(Model.Status == "Pending" ? "selected" : null)">Pending</option>
+                        <option value="Paid" selected="@(Model.Status == "Paid" ? "selected" : null)">Paid</option>
+                        <option value="Shipped" selected="@(Model.Status == "Shipped" ? "selected" : null)">Shipped</option>
+                        <option value="Completed" selected="@(Model.Status == "Completed" ? "selected" : null)">Completed</option>
+                        <option value="Cancelled" selected="@(Model.Status == "Cancelled" ? "selected" : null)">Cancelled</option>
+                    </select>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-3">
+                    <a asp-action="AdminDetails" asp-route-id="@Model.Id"
+                       class="btn btn-secondary d-inline-flex align-items-center justify-content-center w-auto px-3">
+                        <i class="fas fa-times me-2"></i>
+                        <span>Cancel</span>
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-success d-inline-flex align-items-center justify-content-center w-auto px-3">
+                        <i class="fas fa-save me-2"></i>
+                        <span>Save</span>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
+</div>
 
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-action="AdminDetails" asp-route-id="@Model.Id" class="btn btn-secondary">Cancel</a>
-</form>
+<!-- FontAwesome ????????? -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"   />

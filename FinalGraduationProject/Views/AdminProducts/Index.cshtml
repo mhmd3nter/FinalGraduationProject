@@ -1,53 +1,75 @@
 ﻿@model IEnumerable<FinalGraduationProject.Models.Product>
+
 @{
     ViewData["Title"] = "Manage Products";
 }
+
 <div class="container py-5">
+    <!-- العنوان وزرار إضافة -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary">@ViewData["Title"]</h2>
-        <a asp-action="Create" class="btn btn-success btn-lg">
-            <i class="fas fa-plus"></i> Add Product
+        <h2 class="fw-bold text-primary mb-0">
+            <i class="fas fa-box-open me-2"></i> @ViewData["Title"]
+        </h2>
+        <a asp-action="Create" class="btn btn-success btn-lg d-flex align-items-center gap-2">
+            <i class="fas fa-plus"></i>
+            <span>Add Product</span>
         </a>
     </div>
-    <div class="table-responsive shadow rounded bg-white p-3">
+
+    <!-- الجدول -->
+    <div class="table-responsive shadow rounded bg-white p-4">
         <table class="table table-hover align-middle">
-            <thead class="table-light">
+            <thead class="table-dark">
                 <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Brand</th>
-                    <th>Category</th>
-                    <th>Price</th>
-                    <th>Active</th>
-                    <th class="text-center">Actions</th>
+                    <th class="px-3">#</th>
+                    <th class="px-3">Name</th>
+                    <th class="px-3">Brand</th>
+                    <th class="px-3">Category</th>
+                    <th class="px-3">Price</th>
+                    <th class="px-3">Active</th>
+                    <th class="text-center px-3">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var product in Model)
                 {
                     <tr>
-                        <td>@product.Id</td>
-                        <td>@product.Name</td>
-                        <td>@product.Brand?.Name</td>
-                        <td>@product.Category?.Name</td>
-                        <td>$@product.Price.ToString("F2")</td>
-                        <td>
+                        <td class="px-3 fw-bold">@product.Id</td>
+                        <td class="px-3">@product.Name</td>
+                        <td class="px-3">@product.Brand?.Name</td>
+                        <td class="px-3">@product.Category?.Name</td>
+                        <td class="px-3 text-success fw-semibold">
+                            $@product.Price.ToString("F2")
+                        </td>
+                        <td class="px-3">
                             @if (product.IsActive)
                             {
-                                <span class="badge bg-success">Active</span>
+                                <span class="badge bg-success px-3 py-2">
+                                    <i class="fas fa-check-circle me-1"></i> Active
+                                </span>
                             }
                             else
                             {
-                                <span class="badge bg-secondary">Inactive</span>
+                                <span class="badge bg-secondary px-3 py-2">
+                                    <i class="fas fa-times-circle me-1"></i> Inactive
+                                </span>
                             }
                         </td>
-                        <td class="text-center">
-                            <a asp-action="Edit" asp-route-id="@product.Id" class="btn btn-sm btn-warning me-2">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <a asp-action="Delete" asp-route-id="@product.Id" class="btn btn-sm btn-danger">
-                                <i class="fas fa-trash"></i> Delete
-                            </a>
+                        <td class="text-center px-3">
+                            <div class="d-flex justify-content-center gap-2">
+                                <!-- Edit -->
+                                <a asp-action="Edit" asp-route-id="@product.Id"
+                                   class="btn btn-warning btn-sm d-flex align-items-center gap-1">
+                                    <i class="fas fa-edit"></i>
+
+                                </a>
+
+                                <!-- Delete (أيقونة بس مدورة) -->
+                                <a asp-action="Delete" asp-route-id="@product.Id"
+                                   class="btn btn-danger btn-circle" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                 }
@@ -55,4 +77,21 @@
         </table>
     </div>
 </div>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+
+<!-- أيقونات -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<!-- ستايل إضافي -->
+<style>
+    .btn-circle {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        font-size: 16px;
+
+    }
+</style>

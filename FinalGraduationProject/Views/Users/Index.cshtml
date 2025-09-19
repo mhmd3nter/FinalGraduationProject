@@ -6,51 +6,112 @@
     ViewData["Title"] = "Manage Users";
 }
 
-<h1>Manage Users</h1>
+<div class="container my-5">
+    <h1 class="mb-4 text-center">👥 Manage Users</h1>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Email</th>
-            <th>Roles</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach (var user in Model)
-    {
-        <tr>
-            <td>@user.Email</td>
-            <td>
-                @string.Join(", ", await UserManager.GetRolesAsync(user))
-            </td>
-            <td>
-                @(user.LockoutEnd != null && user.LockoutEnd > DateTimeOffset.Now ? "Blocked" : "Active")
-            </td>
-            <td>
-                <form asp-action="MakeAdmin" asp-route-id="@user.Id" method="post" style="display:inline">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-sm btn-primary">Make Admin</button>
-                </form>
-                <form asp-action="RemoveAdmin" asp-route-id="@user.Id" method="post" style="display:inline">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-sm btn-warning">Remove Admin</button>
-                </form>
-                <form asp-action="Block" asp-route-id="@user.Id" method="post" style="display:inline">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-sm btn-danger">Block</button>
-                </form>
-                <form asp-action="Unblock" asp-route-id="@user.Id" method="post" style="display:inline">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-sm btn-success">Unblock</button>
-                </form>
-                <form asp-action="Delete" asp-route-id="@user.Id" method="post" style="display:inline" onsubmit="return confirm('Are you sure?');">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                </form>
-            </td>
-        </tr>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover align-middle shadow-sm rounded">
+            <thead class="table-dark">
+                <tr>
+                    <th class="p-3">Email</th>
+                    <th class="p-3">Roles</th>
+                    <th class="p-3">Status</th>
+                    <th class="p-3 text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td class="fw-bold p-3">@user.Email</td>
+                        <td class="p-3">
+                            <span class="badge bg-info text-dark px-3 py-2">
+                                @string.Join(", ", await UserManager.GetRolesAsync(user))
+                            </span>
+                        </td>
+                        <td class="p-3">
+                            @if (user.LockoutEnd != null && user.LockoutEnd > DateTimeOffset.Now)
+                            {
+                                <span class="badge bg-danger px-3 py-2">
+                                    <i class="fas fa-ban me-1"></i> Blocked
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success px-3 py-2">
+                                    <i class="fas fa-check-circle me-1"></i> Active
+                                </span>
+                            }
+                        </td>
+                        <td class="text-center p-3">
+                            <div class="d-flex flex-wrap gap-2 justify-content-center">
+
+                                <!-- زرار Make Admin -->
+                                <form asp-action="MakeAdmin" asp-route-id="@user.Id" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-success btn-sm d-flex align-items-center">
+                                        <i class="fas fa-user-shield me-1"></i>
+                                        <span>Make Admin</span>
+                                    </button>
+                                </form>
+
+                                <!-- زرار Remove Admin (أيقونة بس) -->
+                                <form asp-action="RemoveAdmin" asp-route-id="@user.Id" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-warning btn-circle" title="Remove Admin">
+                                        <i class="fas fa-user-minus"></i>
+                                    </button>
+                                </form>
+
+                                <!-- زرار Block (أيقونة بس) -->
+                                <form asp-action="Block" asp-route-id="@user.Id" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-danger btn-circle" title="Block">
+                                        <i class="fas fa-lock"></i>
+                                    </button>
+                                </form>
+
+                                <!-- زرار Unblock -->
+                                <form asp-action="Unblock" asp-route-id="@user.Id" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-secondary btn-sm d-flex align-items-center">
+                                        <i class="fas fa-unlock me-1"></i>
+                                        <span>Unblock</span>
+                                    </button>
+                                </form>
+
+                                <!-- زرار Delete -->
+                                <form asp-action="Delete" asp-route-id="@user.Id" method="post" onsubmit="return confirm('Are you sure?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-danger btn-sm d-flex align-items-center">
+                                        <i class="fas fa-trash me-1"></i>
+                                        <span>Delete</span>
+                                    </button>
+                                </form>
+
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- FontAwesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<!-- زرار دائري (أيقونة بس) -->
+<style>
+    .btn-circle {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        font-size: 16px;
+
     }
-    </tbody>
-</table>
+</style>
