@@ -1,0 +1,41 @@
+﻿@model FinalGraduationProject.Models.Address
+
+@{
+    ViewData["Title"] = "Add Address";
+}
+
+<h2 class="mt-5">Add Shipping Address</h2>
+
+<form asp-action="ProcessPayment" method="post">
+    <input type="hidden" name="orderId" value="@ViewBag.OrderId" />
+    <input type="hidden" name="paymentMethod" value="@ViewBag.PaymentMethod" />
+
+    <div class="mb-3">
+        <label asp-for="Street" class="form-label"></label>
+        <input asp-for="Street" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="City" class="form-label"></label>
+        <input asp-for="City" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="State" class="form-label"></label>
+        <input asp-for="State" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PostalCode" class="form-label"></label>
+        <input asp-for="PostalCode" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Country" class="form-label"></label>
+        <input asp-for="Country" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Continue to Payment
+    </button>
+</form>

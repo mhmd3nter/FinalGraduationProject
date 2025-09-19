@@ -50,6 +50,14 @@ namespace FinalGraduationProject.Data
             modelBuilder.Entity<Product>().HasIndex(p => new { p.Name, p.Color });
             modelBuilder.Entity<Inventory>().HasIndex(i => i.ProductId).IsUnique();
 
+            modelBuilder.Entity<Order>()
+    .HasOne(o => o.Address)
+    .WithOne() // مش محتاج خاصية Orders في Address
+    .HasForeignKey<Order>(o => o.AddressId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+
+
             // Product - Inventory (1:1)
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Inventory)

@@ -12,6 +12,9 @@
         public decimal TotalAmount { get; set; }
 
         // Add these lines:
+        public long? AddressId { get; set; }   // مفتاح أجنبي
+        public Address Address { get; set; } = null!; // العلاقة
+
 
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
         public ICollection<Payment> Payments { get; set; } = new List<Payment>();

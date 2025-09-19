@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
 
 namespace FinalGraduationProject.Controllers
 {
@@ -13,12 +11,10 @@ namespace FinalGraduationProject.Controllers
     public class PaymentController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly IConfiguration _configuration;
 
-        public PaymentController(ApplicationDbContext context, IConfiguration configuration)
+        public PaymentController(ApplicationDbContext context)
         {
             _context = context;
-            _configuration = configuration;
         }
 
         // GET: Show payment options
@@ -27,7 +23,7 @@ namespace FinalGraduationProject.Controllers
             var order = await _context.Orders
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
-                .ThenInclude(p => p.Brand) // Include brand for display
+                .ThenInclude(p => p.Brand)
                 .FirstOrDefaultAsync(o => o.Id == orderId);
 
             if (order == null)
@@ -36,36 +32,53 @@ namespace FinalGraduationProject.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // Check if order is already paid
             var existingPayment = await _context.Payments
                 .FirstOrDefaultAsync(p => p.OrderId == orderId && p.Status == "Completed");
 
             if (existingPayment != null)
             {
                 TempData["InfoMessage"] = "This order has already been paid.";
-                return RedirectToAction("Success", new { orderId = orderId });
+                return RedirectToAction("Success", new { orderId });
             }
 
             ViewBag.OrderId = orderId;
             return View(order);
         }
 
-        // POST: Process payment with Paymob
+        // POST: Process payment (with or without new address)
         [HttpPost]
-        public async Task<IActionResult> ProcessPayment(long orderId, string paymentMethod)
+        [HttpPost]
+        public async Task<IActionResult> ProcessPayment(long orderId, string paymentMethod, Address? address)
         {
             var order = await _context.Orders
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
                 .ThenInclude(p => p.Inventory)
                 .FirstOrDefaultAsync(o => o.Id == orderId);
-                
+
             if (order == null)
                 return NotFound();
 
+            // ?? ?? ??????? ????? ????? ????? ????? ??? ?? ?????? ? ??? ???????? ???? ?????
+            if (!order.AddressId.HasValue && address == null)
+            {
+                TempData["ErrorMessage"] = "Please enter a shipping address before continuing.";
+                return RedirectToAction("AddAddress", new { orderId, paymentMethod });
+            }
+
+            // ? ?? ???? ????? ?? ??????? ??? ?? Address ??? ?? ?????? ? ????
+            if (!order.AddressId.HasValue && address != null)
+            {
+                address.UserId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                _context.Addresses.Add(address);
+                await _context.SaveChangesAsync();
+
+                order.AddressId = address.Id;
+                await _context.SaveChangesAsync();
+            }
+
             try
             {
-                // Simple payment processing
                 var payment = new Payment
                 {
                     OrderId = orderId,
@@ -76,23 +89,19 @@ namespace FinalGraduationProject.Controllers
 
                 if (paymentMethod == "Cash")
                 {
-                    // Cash on delivery - mark as confirmed
                     payment.Status = "Completed";
                     order.Status = "Confirmed";
                 }
                 else if (paymentMethod == "Paymob")
                 {
-                    // For now, we'll simulate Paymob payment
-                    // In real implementation, you would integrate with Paymob API
                     payment.Status = "Completed";
                     order.Status = "Paid";
-                    
                     TempData["SuccessMessage"] = "Payment processed successfully!";
                 }
 
                 _context.Payments.Add(payment);
 
-                // ?? Update inventory stock after successful payment
+                // ????? ???????
                 foreach (var orderItem in order.OrderItems)
                 {
                     if (orderItem.Product?.Inventory != null)
@@ -100,33 +109,27 @@ namespace FinalGraduationProject.Controllers
                         var inventory = orderItem.Product.Inventory;
                         inventory.QuantityAvailable -= orderItem.Quantity;
                         inventory.LastStockChangeAt = DateTime.UtcNow;
-                        
-                        // Make sure stock doesn't go negative
                         if (inventory.QuantityAvailable < 0)
-                        {
                             inventory.QuantityAvailable = 0;
-                        }
                     }
                 }
 
-                // ?? Empty the user's cart after successful payment
+                // ????? ??????
                 var userCart = await _context.Carts
                     .Include(c => c.CartItems)
                     .FirstOrDefaultAsync(c => c.UserId == order.UserId);
 
                 if (userCart != null && userCart.CartItems.Any())
-                {
                     _context.CartItems.RemoveRange(userCart.CartItems);
-                }
 
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction("Success", new { orderId = orderId });
+                return RedirectToAction("Success", new { orderId });
             }
-            catch (Exception ex)
+            catch
             {
                 TempData["ErrorMessage"] = "Payment failed. Please try again.";
-                return RedirectToAction("Index", new { orderId = orderId });
+                return RedirectToAction("Index", new { orderId });
             }
         }
 
@@ -143,6 +146,14 @@ namespace FinalGraduationProject.Controllers
                 return NotFound();
 
             return View(order);
+        }
+
+        // GET: Add new address page
+        public IActionResult AddAddress(long orderId, string paymentMethod)
+        {
+            ViewBag.OrderId = orderId;
+            ViewBag.PaymentMethod = paymentMethod;
+            return View(new Address());
         }
     }
 }
