@@ -1,5 +1,6 @@
 ﻿using FinalGraduationProject.Data;
 using FinalGraduationProject.Models;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,12 +14,76 @@ namespace FinalGraduationProject.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IAntiforgery _antiforgery;
 
-        public CartsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+
+        public CartsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager,IAntiforgery antiforgery)
         {
             _context = context;
             _userManager = userManager;
+            _antiforgery = antiforgery;
         }
+        // 🟢 AJAX AddToCart
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddToCartAjax([FromBody] AddToCartDto dto)
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!long.TryParse(userIdString, out long userId))
+                return Json(new { success = false, message = "❌ User not found" });
+
+            var productSize = await _context.ProductSizes
+                .Include(ps => ps.Product)
+                .Include(ps => ps.Size)
+                .FirstOrDefaultAsync(ps => ps.Id == dto.ProductSizeId);
+
+            if (productSize == null)
+                return Json(new { success = false, message = "❌ Product size not found." });
+
+            if (productSize.Quantity < dto.Quantity)
+                return Json(new { success = false, message = $"❌ Only {productSize.Quantity} items available." });
+
+            var userCart = await _context.Carts
+                .Include(c => c.CartItems)
+                .FirstOrDefaultAsync(c => c.UserId == userId);
+
+            if (userCart == null)
+            {
+                userCart = new Cart { UserId = userId };
+                _context.Carts.Add(userCart);
+                await _context.SaveChangesAsync();
+            }
+
+            var cartItem = userCart.CartItems.FirstOrDefault(ci => ci.ProductSizeId == dto.ProductSizeId);
+
+            if (cartItem != null)
+            {
+                if (cartItem.Quantity + dto.Quantity > productSize.Quantity)
+                    return Json(new { success = false, message = "❌ Not enough stock for this size." });
+
+                cartItem.Quantity += dto.Quantity;
+            }
+            else
+            {
+                cartItem = new CartItem
+                {
+                    CartId = userCart.Id,
+                    ProductSizeId = dto.ProductSizeId,
+                    ProductId = productSize.ProductId,
+                    Quantity = dto.Quantity
+                };
+                userCart.CartItems.Add(cartItem);
+            }
+
+            await _context.SaveChangesAsync();
+
+            var cartCount = await _context.CartItems
+                .Where(ci => ci.CartId == userCart.Id)
+                .SumAsync(ci => ci.Quantity);
+
+            return Json(new { success = true, message = "✅ Added successfully", cartCount });
+        }
+
 
         // GET: Cart Contents
         public async Task<IActionResult> Index()
@@ -69,11 +134,16 @@ namespace FinalGraduationProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToCart(long productId, int quantity, long productSizeId, string color)
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.ContentType == "application/json")
+                    return Unauthorized(new { success = false, message = "Please log in first to add items to your cart." });
+                return RedirectToAction("Login", "Account");
+            }
+
             var user = await _userManager.GetUserAsync(User);
             if (await _userManager.IsInRoleAsync(user, "Admin"))
-            {
-                return Forbid(); // or return a view/message indicating not allowed
-            }
+                return Forbid();
 
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!long.TryParse(userIdString, out long userId))
