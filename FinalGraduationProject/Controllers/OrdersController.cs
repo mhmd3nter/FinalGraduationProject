@@ -28,7 +28,6 @@ namespace FinalGraduationProject.Controllers
                 return RedirectToAction("Index", "Home");
 
             var orders = await _context.Orders
-                .Where(o => o.Status != "Cancelled") // ⬅️ استبعد الأوردرات الملغية
                 .Include(o => o.User)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.ProductSize)
