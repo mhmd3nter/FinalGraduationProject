@@ -45,6 +45,22 @@ namespace FinalGraduationProject.Controllers
                 return View(new List<CartItem>());
             }
 
+            // Load all ProductSizes for each product in the cart (for size selection)
+            var productIds = userCart.CartItems.Select(ci => ci.ProductId).Distinct().ToList();
+            var productSizesDict = await _context.ProductSizes
+                .Include(ps => ps.Size)
+                .Where(ps => productIds.Contains(ps.ProductId))
+                .GroupBy(ps => ps.ProductId)
+                .ToDictionaryAsync(g => g.Key, g => g.ToList());
+
+            foreach (var item in userCart.CartItems)
+            {
+                if (item.Product != null && productSizesDict.TryGetValue(item.ProductId, out var sizes))
+                {
+                    item.Product.ProductSizes = sizes;
+                }
+            }
+
             return View(userCart.CartItems);
         }
 
@@ -202,6 +218,27 @@ namespace FinalGraduationProject.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Update size
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateSize(long cartItemId, long productSizeId)
+        {
+            var productSize = await _context.ProductSizes.FindAsync(productSizeId);
+            if (productSize == null)
+            {
+                TempData["ErrorMessage"] = "Selected size does not exist.";
+                return RedirectToAction("Index");
+            }
+
+            var cartItem = await _context.CartItems.FindAsync(cartItemId);
+            if (cartItem != null)
+            {
+                cartItem.ProductSizeId = productSizeId;
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Index");
         }
 
         // ===== Helpers for totals =====
