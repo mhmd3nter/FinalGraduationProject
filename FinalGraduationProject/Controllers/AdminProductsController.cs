@@ -25,24 +25,29 @@ namespace FinalGraduationProject.Controllers
         {
             // Website statistics
             ViewBag.UserCount = await _context.Users.CountAsync();
-            ViewBag.OrderCount = await _context.Orders.CountAsync();
+            ViewBag.OrderCount = await _context.Orders
+                .Where(o => o.Status != "Cancelled" && o.Status!= "Pending")
+                .CountAsync();
             ViewBag.ProductCount = await _context.Products.CountAsync();
-            ViewBag.TotalSales = await _context.Orders.SumAsync(o => o.TotalAmount);
+            ViewBag.TotalSales = await _context.Orders
+                .Where(o => o.Status != "Cancelled" && o.Status != "Pending")
+                .SumAsync(o => o.TotalAmount);
 
             // Recent orders (last 5)
             var recentOrders = await _context.Orders
+                .Where(o => o.Status != "Pending")
+                .Include(o => o.User) // ⬅️ يجيب بيانات اليوزر مباشرة
                 .OrderByDescending(o => o.OrderDate)
                 .Take(5)
                 .Select(o => new
                 {
                     o.Id,
-                    UserEmail = _context.Users.Where(u => u.Id == o.UserId).Select(u => u.Email).FirstOrDefault(),
+                    UserEmail = o.User.Email,
                     o.OrderDate,
                     o.Status,
                     Total = o.TotalAmount
                 })
                 .ToListAsync();
-
             ViewBag.RecentOrders = recentOrders;
 
             return View();

@@ -28,13 +28,14 @@ namespace FinalGraduationProject.Controllers
                 return RedirectToAction("Index", "Home");
 
             var orders = await _context.Orders
+                .Where(o => o.Status != "Cancelled") // ⬅️ استبعد الأوردرات الملغية
+                .Include(o => o.User)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.ProductSize)
                         .ThenInclude(ps => ps.Product)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.ProductSize.Size)
                 .Include(o => o.Address)
-                .Where(o => o.UserId == userId) // <-- include cancelled orders as well
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 
@@ -70,15 +71,17 @@ namespace FinalGraduationProject.Controllers
         public async Task<IActionResult> Manage()
         {
             var orders = await _context.Orders
-                .Include(o => o.User)
-                .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.ProductSize)
-                        .ThenInclude(ps => ps.Product)
-                .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.ProductSize.Size)
-                .Include(o => o.Address) // <-- Include address
-                .OrderByDescending(o => o.OrderDate)
-                .ToListAsync();
+    .Include(o => o.User)
+    .Include(o => o.OrderItems)
+        .ThenInclude(oi => oi.ProductSize)
+            .ThenInclude(ps => ps.Product)
+    .Include(o => o.OrderItems)
+        .ThenInclude(oi => oi.ProductSize.Size)
+    .Include(o => o.Address)
+    .Where(o => o.Status != "Pending") // ⬅️ استبعد البيندينج
+    .OrderByDescending(o => o.OrderDate)
+    .ToListAsync();
+
 
             return View(orders);
         }
@@ -442,6 +445,25 @@ namespace FinalGraduationProject.Controllers
             TempData["SuccessMessage"] = "Cancelled orders cleared.";
             return RedirectToAction("MyOrders");
         }
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ClearCancelledOrdersAdmin()
+        {
+            var cancelledOrders = await _context.Orders
+                .Where(o => o.Status == "Cancelled")
+                .ToListAsync();
+
+            if (cancelledOrders.Any())
+            {
+                _context.Orders.RemoveRange(cancelledOrders);
+                await _context.SaveChangesAsync();
+            }
+
+            TempData["SuccessMessage"] = "All cancelled orders cleared.";
+            return RedirectToAction(nameof(Manage));
+        }
+
 
     }
 }

@@ -57,7 +57,7 @@ namespace FinalGraduationProject.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Addresses");
+                    b.ToTable("Addresses", (string)null);
                 });
 
             modelBuilder.Entity("FinalGraduationProject.Models.ApplicationUser", b =>
@@ -152,7 +152,7 @@ namespace FinalGraduationProject.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Brands");
+                    b.ToTable("Brands", (string)null);
 
                     b.HasData(
                         new
@@ -187,7 +187,7 @@ namespace FinalGraduationProject.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Carts");
+                    b.ToTable("Carts", (string)null);
                 });
 
             modelBuilder.Entity("FinalGraduationProject.Models.CartItem", b =>
@@ -218,7 +218,7 @@ namespace FinalGraduationProject.Migrations
 
                     b.HasIndex("ProductSizeId");
 
-                    b.ToTable("CartItems");
+                    b.ToTable("CartItems", (string)null);
                 });
 
             modelBuilder.Entity("FinalGraduationProject.Models.Category", b =>
@@ -235,7 +235,7 @@ namespace FinalGraduationProject.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
 
                     b.HasData(
                         new
@@ -289,7 +289,7 @@ namespace FinalGraduationProject.Migrations
                     b.HasIndex("ProductId")
                         .IsUnique();
 
-                    b.ToTable("Inventories");
+                    b.ToTable("Inventories", (string)null);
 
                     b.HasData(
                         new
@@ -534,7 +534,7 @@ namespace FinalGraduationProject.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("FinalGraduationProject.Models.OrderItem", b =>
@@ -569,7 +569,7 @@ namespace FinalGraduationProject.Migrations
 
                     b.HasIndex("ProductSizeId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("FinalGraduationProject.Models.Payment", b =>
@@ -602,7 +602,7 @@ namespace FinalGraduationProject.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payments", (string)null);
                 });
 
             modelBuilder.Entity("FinalGraduationProject.Models.Product", b =>
@@ -654,7 +654,7 @@ namespace FinalGraduationProject.Migrations
 
                     b.HasIndex("Name", "Color");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
 
                     b.HasData(
                         new
@@ -942,7 +942,7 @@ namespace FinalGraduationProject.Migrations
 
                     b.HasIndex("SizeId");
 
-                    b.ToTable("ProductSizes");
+                    b.ToTable("ProductSizes", (string)null);
 
                     b.HasData(
                         new
@@ -1397,7 +1397,7 @@ namespace FinalGraduationProject.Migrations
 
                     b.HasIndex("ShippingMethodId");
 
-                    b.ToTable("Shipments");
+                    b.ToTable("Shipments", (string)null);
                 });
 
             modelBuilder.Entity("FinalGraduationProject.Models.ShippingMethod", b =>
@@ -1421,7 +1421,7 @@ namespace FinalGraduationProject.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ShippingMethods");
+                    b.ToTable("ShippingMethods", (string)null);
                 });
 
             modelBuilder.Entity("FinalGraduationProject.Models.Size", b =>
@@ -1438,7 +1438,7 @@ namespace FinalGraduationProject.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sizes");
+                    b.ToTable("Sizes", (string)null);
 
                     b.HasData(
                         new
