@@ -1,0 +1,102 @@
+﻿@model FinalGraduationProject.Models.Product
+
+@{
+    ViewData["Title"] = "Add Product";
+    var sizes = ViewBag.Sizes as List<FinalGraduationProject.Models.Size>;
+}
+
+<div class="container py-5">
+    <h2 class="fw-bold text-primary mb-4">@ViewData["Title"]</h2>
+
+    <form asp-action="Create" method="post" enctype="multipart/form-data" class="shadow rounded bg-white p-4">
+        @Html.AntiForgeryToken()
+
+        <!-- Product Name -->
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <!-- Brand -->
+        <div class="mb-3">
+            <label asp-for="BrandId" class="form-label">Brand</label>
+            <select asp-for="BrandId" class="form-select" asp-items="ViewBag.BrandId"></select>
+            <span asp-validation-for="BrandId" class="text-danger"></span>
+        </div>
+
+        <!-- Category -->
+        <div class="mb-3">
+            <label asp-for="CategoryId" class="form-label">Category</label>
+            <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId"></select>
+            <span asp-validation-for="CategoryId" class="text-danger"></span>
+        </div>
+
+        
+
+
+        <!-- Price -->
+        <div class="mb-3">
+            <label asp-for="Price" class="form-label"></label>
+            <input asp-for="Price" class="form-control" />
+            <span asp-validation-for="Price" class="text-danger"></span>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <!-- Gender -->
+        <div class="mb-3">
+            <label asp-for="Gender" class="form-label"></label>
+            <input asp-for="Gender" class="form-control" />
+            <span asp-validation-for="Gender" class="text-danger"></span>
+        </div>
+
+        <!-- Color -->
+        <div class="mb-3">
+            <label asp-for="Color" class="form-label"></label>
+            <input asp-for="Color" class="form-control" />
+            <span asp-validation-for="Color" class="text-danger"></span>
+        </div>
+
+        <!-- Sizes -->
+        <div class="mb-3">
+            <label class="form-label">Sizes</label>
+            <div class="row">
+                @foreach (var size in sizes)
+                {
+                    <div class="col-md-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="selectedSizes" value="@size.Id" id="size_@size.Id" />
+                            <label class="form-check-label" for="size_@size.Id">@size.Name</label>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Image Upload -->
+        <div class="mb-3">
+            <label class="form-label">Product Image</label>
+            <input type="file" name="ImageFile" class="form-control" />
+        </div>
+
+        <!-- Active -->
+        <div class="mb-3 form-check">
+            <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+            <label asp-for="IsActive" class="form-check-label"></label>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn btn-primary btn-lg">Save</button>
+        <a asp-action="Index" class="btn btn-secondary btn-lg ms-2">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,6 +1,7 @@
 ﻿using FinalGraduationProject.Data; // مجلد البيانات
 using FinalGraduationProject.Models; // مجلد الموديل
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore; // لعمليات قاعدة البيانات
 
 namespace FinalGraduationProject.Controllers
@@ -53,5 +54,10 @@ namespace FinalGraduationProject.Controllers
 
             return View(product);
         }
+
+
+
+        
+
     }
 }

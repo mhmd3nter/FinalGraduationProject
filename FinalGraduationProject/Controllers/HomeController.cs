@@ -21,11 +21,11 @@ namespace FinalGraduationProject.Controllers
         public async Task<IActionResult> IndexAsync()
         {
             Products = await _context.Products
-.Include(p => p.Brand)
-.Include(p => p.Category)
-.Include(p => p.ProductSizes)
-.ThenInclude(ps => ps.Size)
-.ToListAsync();
+            .Include(p => p.Brand)
+            .Include(p => p.Category)
+            .Include(p => p.ProductSizes)
+            .ThenInclude(ps => ps.Size)
+            .ToListAsync();
 
             return View(Products);
         }

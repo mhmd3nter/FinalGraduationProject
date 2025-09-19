@@ -50,6 +50,14 @@ public class AccountController : Controller
         if (!ModelState.IsValid)
             return View(model);
 
+        // تحقق من وجود الإيميل مسبقًا
+        var existingUser = await _userManager.FindByEmailAsync(model.Email);
+        if (existingUser != null)
+        {
+            ModelState.AddModelError("Email", "This email is already registered.");
+            return View(model);
+        }
+
         var user = new ApplicationUser { UserName = model.Email, Email = model.Email, Name = model.Name };
         var result = await _userManager.CreateAsync(user, model.Password);
         if (result.Succeeded)

@@ -4,6 +4,7 @@ using FinalGraduationProject.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinalGraduationProject.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250919002830_FixProductSizeRelation")]
+    partial class FixProductSizeRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -502,9 +505,6 @@ namespace FinalGraduationProject.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("AddressId")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
@@ -520,9 +520,6 @@ namespace FinalGraduationProject.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AddressId")
-                        .IsUnique();
 
                     b.HasIndex("UserId");
 
@@ -1698,19 +1695,11 @@ namespace FinalGraduationProject.Migrations
 
             modelBuilder.Entity("FinalGraduationProject.Models.Order", b =>
                 {
-                    b.HasOne("FinalGraduationProject.Models.Address", "Address")
-                        .WithOne()
-                        .HasForeignKey("FinalGraduationProject.Models.Order", "AddressId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("FinalGraduationProject.Models.ApplicationUser", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Address");
 
                     b.Navigation("User");
                 });
