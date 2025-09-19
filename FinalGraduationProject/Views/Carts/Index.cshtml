@@ -44,6 +44,14 @@
                                                 <li>Size: @item.ProductSize?.Size?.Name</li>
                                                 <li>@item.Product?.Description</li>
                                             </ul>
+
+                                            <!-- ✅ شكل الستوك الجديد -->
+                                            <div class="mb-2">
+                                                <span class="badge bg-info text-dark px-3 py-2" style="font-size: 0.9rem;">
+                                                    Available Stock: @stock
+                                                </span>
+                                            </div>
+
                                             <div class="fw-bold text-primary">
                                                 $@(item.Product?.Price ?? 0)
                                             </div>
@@ -93,6 +101,25 @@
                                                 </form>
                                             }
                                         </div>
+                                    </div>
+
+                                    <!-- Size Update Form -->
+                                    <div class="mb-3">
+                                        <form asp-controller="Carts" asp-action="UpdateSize" method="post" class="d-flex align-items-center">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="cartItemId" value="@item.Id" />
+                                            <label for="productSizeId-@item.Id" class="form-label fw-semibold me-2 mb-0">Select Size</label>
+                                            <select name="productSizeId" id="productSizeId-@item.Id" class="form-select shadow-sm me-2" required>
+                                                <option value="">Choose size</option>
+                                                @foreach (var ps in item.Product.ProductSizes)
+                                                {
+                                                    <option value="@ps.Id">
+                                                        @ps.Size.Name
+                                                    </option>
+                                                }
+                                            </select>
+                                            <button type="submit" class="btn btn-outline-primary btn-sm ms-2">Update</button>
+                                        </form>
                                     </div>
                                 </div>
                             }

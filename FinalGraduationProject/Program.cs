@@ -40,6 +40,9 @@ builder.Services.AddHttpClient<PaymobService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddAntiforgery(options => {
+    options.HeaderName = "RequestVerificationToken";
+});
 
 var app = builder.Build();
 
