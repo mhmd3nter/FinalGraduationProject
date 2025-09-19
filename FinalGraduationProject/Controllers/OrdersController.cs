@@ -33,7 +33,8 @@ namespace FinalGraduationProject.Controllers
                         .ThenInclude(ps => ps.Product)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.ProductSize.Size)
-                .Where(o => o.UserId == userId && o.Status != "Cancelled") // Exclude cancelled orders
+                .Include(o => o.Address)
+                .Where(o => o.UserId == userId) // <-- include cancelled orders as well
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 
@@ -75,6 +76,7 @@ namespace FinalGraduationProject.Controllers
                         .ThenInclude(ps => ps.Product)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.ProductSize.Size)
+                .Include(o => o.Address) // <-- Include address
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 
@@ -86,12 +88,13 @@ namespace FinalGraduationProject.Controllers
         public async Task<IActionResult> AdminDetails(long id)
         {
             var order = await _context.Orders
-                .Include(o => o.User) // <-- This line ensures User is loaded
+                .Include(o => o.User)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.ProductSize)
                         .ThenInclude(ps => ps.Product)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.ProductSize.Size)
+                .Include(o => o.Address) // <-- Include address
                 .FirstOrDefaultAsync(o => o.Id == id);
 
             if (order == null)
@@ -201,12 +204,244 @@ namespace FinalGraduationProject.Controllers
             if (order == null)
                 return NotFound();
 
-            // Remove the order from the database
-            _context.Orders.Remove(order);
+            // Mark as cancelled, but do NOT set a reason
+            order.Status = "Cancelled";
+            order.CancellationReason = null; // Ensure it's null for user-initiated cancels
+            _context.Orders.Update(order);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Order cancelled and removed successfully.";
+            TempData["SuccessMessage"] = "Order cancelled successfully.";
             return RedirectToAction("MyOrders");
         }
+
+        // User: Edit their own order (only if the status is Pending)
+        public async Task<IActionResult> Edit(long id)
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!long.TryParse(userIdString, out long userId))
+                return RedirectToAction("Index", "Home");
+
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.ProductSize)
+                        .ThenInclude(ps => ps.Product)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.ProductSize.Size)
+                .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+
+            if (order == null || order.Status != "Pending")
+                return NotFound();
+
+            // Get all products and sizes for selection
+            ViewBag.Products = await _context.Products.Include(p => p.ProductSizes).ThenInclude(ps => ps.Size).ToListAsync();
+
+            // Fix: Cast ViewBag.Products to List<Product> before using LINQ
+            var products = ViewBag.Products as List<Product>;
+            ViewBag.ProductSizesJson = System.Text.Json.JsonSerializer.Serialize(
+                products.Select(p => new
+                {
+                    productId = p.Id,
+                    sizes = p.ProductSizes.Select(ps => new
+                    {
+                        id = ps.Id,
+                        name = ps.Size.Name
+                    })
+                })
+            );
+
+            return View(order);
+        }
+
+        // User: Update their own order
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(long id, Order updatedOrder, long[] addProductIds, long[] addSizeIds, int[] addQuantities)
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!long.TryParse(userIdString, out long userId))
+                return RedirectToAction("Index", "Home");
+
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+
+            if (order == null || order.Status != "Pending")
+                return NotFound();
+
+            // Work on a stable list of existing items and use indexes consistently
+            var existingItems = order.OrderItems.ToList();
+            for (int i = 0; i < existingItems.Count; i++)
+            {
+                var item = existingItems[i];
+                var formPrefix = $"OrderItems[{i}]";
+                var remove = Request.Form[$"{formPrefix}.Remove"].ToString();
+                var newSizeId = Request.Form[$"{formPrefix}.ProductSizeId"].ToString();
+                var newQuantity = Request.Form[$"{formPrefix}.Quantity"].ToString();
+
+                // Checkbox may post "true" or "on" depending on client; handle both
+                if (!string.IsNullOrEmpty(remove) && (remove.Equals("true", StringComparison.OrdinalIgnoreCase) || remove.Equals("on", StringComparison.OrdinalIgnoreCase)))
+                {
+                    _context.OrderItems.Remove(item);
+                    continue;
+                }
+
+                if (long.TryParse(newSizeId, out var sizeId))
+                    item.ProductSizeId = sizeId;
+                if (int.TryParse(newQuantity, out var qty))
+                    item.Quantity = qty;
+            }
+
+            // Ensure add arrays are not null to avoid NullReferenceException
+            addProductIds ??= Array.Empty<long>();
+            addSizeIds ??= Array.Empty<long>();
+            addQuantities ??= Array.Empty<int>();
+
+            // Add new items (ensure arrays lengths align)
+            var addCount = Math.Min(addProductIds.Length, Math.Min(addSizeIds.Length, addQuantities.Length));
+            for (int i = 0; i < addCount; i++)
+            {
+                if (addProductIds[i] > 0 && addSizeIds[i] > 0 && addQuantities[i] > 0)
+                {
+                    var ps = await _context.ProductSizes.FindAsync(addSizeIds[i]);
+                    if (ps == null) continue; // skip invalid size
+
+                    // Prefer product id from ps to avoid trusting client addProductIds
+                    var productId = ps.ProductId;
+
+                    var price = 0m;
+                    // get price from navigation if loaded, otherwise load product price
+                    if (ps.Product != null)
+                        price = ps.Product.Price;
+                    else
+                    {
+                        var product = await _context.Products.FindAsync(productId);
+                        price = product?.Price ?? 0m;
+                    }
+
+                    var newItem = new OrderItem
+                    {
+                        OrderId = order.Id,
+                        ProductId = productId,            // <-- IMPORTANT: set ProductId
+                        ProductSizeId = ps.Id,
+                        Quantity = addQuantities[i],
+                        Price = price
+                    };
+                    _context.OrderItems.Add(newItem);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Details", new { id = order.Id });
+        }
+
+        // ========================
+        // Checkout & Payment
+        // ========================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ProcessPayment(long orderId, string paymentMethod, string address)
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!long.TryParse(userIdString, out long userId))
+                return RedirectToAction("Index", "Home");
+
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId);
+
+            if (order == null)
+            {
+                TempData["ErrorMessage"] = "Order not found.";
+                return RedirectToAction("MyOrders");
+            }
+
+            if (string.IsNullOrWhiteSpace(address))
+            {
+                TempData["ErrorMessage"] = "Please enter your address.";
+                return RedirectToAction("Details", new { id = orderId });
+            }
+
+            // Save payment data
+            order.Address = new Address
+            {
+                UserId = userId,
+                Street = address, // You may want to split address into Street, City, etc.
+                // Set other Address properties as needed, e.g. City, State, PostalCode, Country
+            };
+
+            order.Status = "AddressConfirmed";
+
+            _context.Orders.Update(order);
+            await _context.SaveChangesAsync();
+
+            // Redirect to confirmation page
+            return RedirectToAction("ConfirmAddress", new { id = orderId });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmAddress(long id)
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!long.TryParse(userIdString, out long userId))
+                return RedirectToAction("Index", "Home");
+
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.ProductSize)
+                        .ThenInclude(ps => ps.Product)
+                .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+
+            if (order == null)
+            {
+                TempData["ErrorMessage"] = "Order not found.";
+                return RedirectToAction("MyOrders");
+            }
+
+            return View(order); // ConfirmAddress.cshtml
+        }
+
+        // Admin: Cancel an order (soft delete, e.g. mark as cancelled)
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AdminDelete(long id, string reason)
+        {
+            var order = await _context.Orders
+                .Include(o => o.User)
+                .FirstOrDefaultAsync(o => o.Id == id);
+
+            if (order == null)
+                return NotFound();
+
+            order.Status = "Cancelled";
+            order.CancellationReason = reason;
+            _context.Orders.Update(order);
+            await _context.SaveChangesAsync();
+
+            // Optionally: Notify user via email or notification system
+
+            TempData["SuccessMessage"] = $"Order #{order.Id} cancelled. User will be notified: {reason}";
+            return RedirectToAction(nameof(Manage));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ClearCancelledOrders()
+        {
+            var userIdString = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (!long.TryParse(userIdString, out long userId))
+                return RedirectToAction("Index", "Home");
+
+            var cancelledOrders = await _context.Orders
+                .Where(o => o.UserId == userId && o.Status == "Cancelled")
+                .ToListAsync();
+
+            _context.Orders.RemoveRange(cancelledOrders);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Cancelled orders cleared.";
+            return RedirectToAction("MyOrders");
+        }
+
     }
 }

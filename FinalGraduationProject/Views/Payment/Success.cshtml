@@ -70,6 +70,25 @@
                         </div>
                     </div>
 
+                    <!-- Shipping Address (newly added section) -->
+                    @if (Model.Address != null)
+                    {
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h5><i class="fas fa-map-marker-alt"></i> Shipping Address</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>
+                                    <strong>Street:</strong> @Model.Address.Street <br />
+                                    <strong>City:</strong> @Model.Address.City <br />
+                                    <strong>State:</strong> @Model.Address.State <br />
+                                    <strong>Postal Code:</strong> @Model.Address.PostalCode <br />
+                                    <strong>Country:</strong> @Model.Address.Country
+                                </p>
+                            </div>
+                        </div>
+                    }
+
                     <!-- Action Buttons -->
                     <div class="mt-4">
                         <a href="@Url.Action("Index", "Products")" class="btn btn-primary">

@@ -19,5 +19,11 @@
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
         public ICollection<Payment> Payments { get; set; } = new List<Payment>();
         public ICollection<Shipment> Shipments { get; set; } = new List<Shipment>();
+
+        // Add this property to the Order class
+        public string? PaymentMethod { get; set; }
+
+        // Add this property if it does not already exist
+        public string? CancellationReason { get; set; }
     }
 }

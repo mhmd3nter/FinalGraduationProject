@@ -1,0 +1,123 @@
+@model FinalGraduationProject.Models.Order
+@{
+    var products = ViewBag.Products as List<FinalGraduationProject.Models.Product>;
+}
+
+<h2>Edit Order #@Model.Id</h2>
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.Id" />
+
+    <h4>Current Items</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Size</th>
+                <th>Quantity</th>
+                <th>Remove</th>
+            </tr>
+        </thead>
+        <tbody>
+        @for (int i = 0; i < Model.OrderItems.Count; i++)
+        {
+            var item = Model.OrderItems.ElementAt(i);
+            <tr>
+                <td>@item.ProductSize.Product.Name</td>
+                <td>
+                    <select name="OrderItems[@i].ProductSizeId" class="form-select">
+                        @foreach (var ps in item.ProductSize.Product.ProductSizes)
+                        {
+                            <option value="@ps.Id">
+                                @ps.Size.Name
+                            </option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <input type="number" name="OrderItems[@i].Quantity" value="@item.Quantity" min="1" class="form-control" />
+                </td>
+                <td>
+                    <input type="checkbox" name="OrderItems[@i].Remove" value="true" />
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <h4>Add New Product</h4>
+    <div id="add-products">
+        <div class="row mb-2">
+            <div class="col">
+                <select name="addProductIds" class="form-select">
+                    <option value="">Select Product</option>
+                    @foreach (var product in products)
+                    {
+                        <option value="@product.Id">@product.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col">
+                <select name="addSizeIds" class="form-select">
+                    <option value="">Select Size</option>
+                    @* You can use JS to populate sizes based on product selection *@
+                </select>
+            </div>
+            <div class="col">
+                <input type="number" name="addQuantities" class="form-control" min="1" value="1" />
+            </div>
+        </div>
+    </div>
+    <button type="button" class="btn btn-secondary mb-3" onclick="addProductRow()">Add Another Product</button>
+    <br />
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+</form>
+
+@{
+    
+    var productSizesJson = ViewBag.ProductSizesJson as string;
+}
+
+@section Scripts {
+    <script>
+        // Product sizes data from server
+        var productSizesData = @Html.Raw(productSizesJson ?? "[]");
+
+        // When a product is selected, update the corresponding size dropdown
+        function updateSizeDropdown(productSelect) {
+            var row = productSelect.closest('.row');
+            var sizeSelect = row.querySelector('select[name="addSizeIds"]');
+            var productId = productSelect.value;
+            sizeSelect.innerHTML = '<option value="">Select Size</option>';
+            if (!productId) return;
+            var product = productSizesData.find(p => p.productId == productId);
+            if (product) {
+                product.sizes.forEach(function(size) {
+                    var opt = document.createElement('option');
+                    opt.value = size.id;
+                    opt.textContent = size.name;
+                    sizeSelect.appendChild(opt);
+                });
+            }
+        }
+
+        // Attach event listeners to all product selects (including dynamically added)
+        function attachProductSelectListeners() {
+            document.querySelectorAll('#add-products select[name="addProductIds"]').forEach(function(select) {
+                select.onchange = function() { updateSizeDropdown(this); };
+            });
+        }
+
+        // Add new product row and attach listeners
+        function addProductRow() {
+            var row = document.querySelector('#add-products .row').cloneNode(true);
+            row.querySelectorAll('select, input').forEach(el => el.value = '');
+            document.getElementById('add-products').appendChild(row);
+            attachProductSelectListeners();
+        }
+
+        // Initial attach
+        attachProductSelectListeners();
+    </script>
+}
+

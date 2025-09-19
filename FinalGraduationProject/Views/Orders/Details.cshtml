@@ -77,6 +77,13 @@
             </div>
         </div>
 
+        @if (!string.IsNullOrEmpty(Model.CancellationReason))
+        {
+            <div class="alert alert-warning mt-3">
+                <strong>Cancellation Reason:</strong> @Model.CancellationReason
+            </div>
+        }
+
         <!-- الأزرار -->
         <div class="mt-4 d-flex justify-content-between">
             <a asp-action="MyOrders" class="btn btn-outline-primary">

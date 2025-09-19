@@ -343,6 +343,7 @@ namespace FinalGraduationProject.Controllers
             {
                 UserId = userId,
                 OrderDate = DateTime.UtcNow,
+                PaymentMethod = "Pending", // set placeholder or chosen default
                 OrderItems = userCart.CartItems.Select(ci => new OrderItem
                 {
                     ProductSizeId = ci.ProductSizeId,
@@ -366,7 +367,7 @@ namespace FinalGraduationProject.Controllers
                 _context.ProductSizes.Update(ci.ProductSize); // Ensure EF tracks the change
             }
 
-            _context.CartItems.RemoveRange(userCart.CartItems);
+        
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Index", "Payment", new { orderId = order.Id });

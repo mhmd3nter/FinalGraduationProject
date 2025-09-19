@@ -1,4 +1,4 @@
-using FinalGraduationProject.Data;
+﻿using FinalGraduationProject.Data;
 using FinalGraduationProject.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +17,7 @@ namespace FinalGraduationProject.Controllers
             _context = context;
         }
 
-        // GET: Show payment options
+        // GET: Checkout Page (Show order & choose payment method)
         public async Task<IActionResult> Index(long orderId)
         {
             var order = await _context.Orders
@@ -45,8 +45,15 @@ namespace FinalGraduationProject.Controllers
             return View(order);
         }
 
-        // POST: Process payment (with or without new address)
-        [HttpPost]
+        // GET: Add new address page
+        public IActionResult AddAddress(long orderId, string paymentMethod)
+        {
+            ViewBag.OrderId = orderId;
+            ViewBag.PaymentMethod = paymentMethod;
+            return View(new Address());
+        }
+
+        // POST: Process payment (with or without address)
         [HttpPost]
         public async Task<IActionResult> ProcessPayment(long orderId, string paymentMethod, Address? address)
         {
@@ -59,14 +66,13 @@ namespace FinalGraduationProject.Controllers
             if (order == null)
                 return NotFound();
 
-            // ?? ?? ??????? ????? ????? ????? ????? ??? ?? ?????? ? ??? ???????? ???? ?????
+            // لو الأوردر ملوش عنوان ولسه مفيش عنوان متبعت → روح على صفحة AddAddress
             if (!order.AddressId.HasValue && address == null)
             {
-                TempData["ErrorMessage"] = "Please enter a shipping address before continuing.";
                 return RedirectToAction("AddAddress", new { orderId, paymentMethod });
             }
 
-            // ? ?? ???? ????? ?? ??????? ??? ?? Address ??? ?? ?????? ? ????
+            // لو الأوردر ملوش عنوان وفي عنوان متبعت → خزنه واربطه بالأوردر
             if (!order.AddressId.HasValue && address != null)
             {
                 address.UserId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -101,7 +107,7 @@ namespace FinalGraduationProject.Controllers
 
                 _context.Payments.Add(payment);
 
-                // ????? ???????
+                // خصم المخزون
                 foreach (var orderItem in order.OrderItems)
                 {
                     if (orderItem.Product?.Inventory != null)
@@ -114,7 +120,7 @@ namespace FinalGraduationProject.Controllers
                     }
                 }
 
-                // ????? ??????
+                // مسح الكارت
                 var userCart = await _context.Carts
                     .Include(c => c.CartItems)
                     .FirstOrDefaultAsync(c => c.UserId == order.UserId);
@@ -138,22 +144,15 @@ namespace FinalGraduationProject.Controllers
         {
             var order = await _context.Orders
                 .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Product)
+                    .ThenInclude(oi => oi.Product)
                 .Include(o => o.Payments)
+                .Include(o => o.Address) // <-- Add this line
                 .FirstOrDefaultAsync(o => o.Id == orderId);
 
             if (order == null)
                 return NotFound();
 
             return View(order);
-        }
-
-        // GET: Add new address page
-        public IActionResult AddAddress(long orderId, string paymentMethod)
-        {
-            ViewBag.OrderId = orderId;
-            ViewBag.PaymentMethod = paymentMethod;
-            return View(new Address());
         }
     }
 }

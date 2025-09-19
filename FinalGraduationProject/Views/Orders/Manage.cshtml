@@ -6,15 +6,18 @@
 
 <h2>All Orders</h2>
 
-<table class="table table-bordered">
-    <thead>
+<table class="table table-bordered table-hover align-middle">
+    <thead class="table-dark">
         <tr>
             <th>Order #</th>
             <th>User</th>
             <th>Date</th>
             <th>Total</th>
             <th>Status</th>
+            <th>Shipping Address</th>
+            <th>Items</th>
             <th>Details</th>
+            <th>Delete</th>
         </tr>
     </thead>
     <tbody>
@@ -22,12 +25,80 @@
     {
         <tr>
             <td>@order.Id</td>
-            <td>@order.UserId</td>
-            <td>@order.OrderDate.ToString("yyyy-MM-dd HH:mm")</td>
-            <td>$@order.TotalAmount.ToString("F2")</td>
-            <td>@order.Status</td>
             <td>
-                <a asp-action="AdminDetails" asp-route-id="@order.Id" class="btn btn-sm btn-info">View</a>
+                <strong>@order.User?.UserName</strong><br />
+                <small>ID: @order.UserId</small>
+            </td>
+            <td>@order.OrderDate.ToString("g")</td>
+            <td>$@order.TotalAmount.ToString("F2")</td>
+            <td>
+                <span class="badge bg-@(order.Status == "Cancelled" ? "danger" : order.Status == "Confirmed" ? "success" : "warning")">
+                    @order.Status
+                </span>
+            </td>
+            <td>
+                @if (order.Address != null)
+                {
+                    <div>
+                        <strong>@order.Address.Street</strong><br />
+                        @order.Address.City, @order.Address.State<br />
+                        @order.Address.PostalCode, @order.Address.Country
+                    </div>
+                }
+                else
+                {
+                    <span class="text-danger">No Address</span>
+                }
+            </td>
+            <td>
+                <ul class="list-unstyled mb-0">
+                @foreach (var item in order.OrderItems)
+                {
+                    <li>
+                        <strong>@item.ProductSize.Product.Name</strong>
+                        (Size: @item.ProductSize.Size.Name) × @item.Quantity
+                        <br />
+                        <small>
+                            Unit: $@item.Price.ToString("F2"),
+                            Subtotal: $@(item.Price * item.Quantity),
+                            <span class="text-muted">Stock: @item.ProductSize.Quantity</span>
+                        </small>
+                    </li>
+                }
+                </ul>
+            </td>
+            <td>
+                <a asp-action="AdminDetails" asp-route-id="@order.Id" class="btn btn-info btn-sm">Details</a>
+            </td>
+            <td>
+                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteOrderModal-@order.Id">Delete</button>
+                <!-- Modal -->
+                <div class="modal fade" id="deleteOrderModal-@order.Id" tabindex="-1" aria-labelledby="deleteOrderModalLabel-@order.Id" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <form asp-action="AdminDelete" method="post">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="deleteOrderModalLabel-@order.Id">Delete Order #@order.Id</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <input type="hidden" name="id" value="@order.Id" />
+                          <div class="mb-3">
+                            <label for="reason-@order.Id" class="form-label">Reason for deleting this order (user will see this):</label>
+                            <textarea class="form-control" name="reason" id="reason-@order.Id" required></textarea>
+                          </div>
+                          <div class="alert alert-warning">
+                            This will mark the order as <strong>Cancelled</strong> and notify the user.
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <button type="submit" class="btn btn-danger">Delete Order</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
             </td>
         </tr>
     }

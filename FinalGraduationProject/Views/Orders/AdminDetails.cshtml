@@ -20,6 +20,7 @@
             <th>Quantity</th>
             <th>Unit Price</th>
             <th>Subtotal</th>
+            <th>Available Stock (This Size)</th>
         </tr>
     </thead>
     <tbody>
@@ -31,14 +32,93 @@
             <td>@item.Quantity</td>
             <td>$@item.Price.ToString("F2")</td>
             <td>$@(item.Price * item.Quantity).ToString("F2")</td>
+            <td>
+                @item.ProductSize.Quantity
+                @if (item.ProductSize.Quantity <= 3)
+                {
+                    <span class="badge bg-danger ms-2">Low</span>
+                }
+                else if (item.ProductSize.Quantity <= 10)
+                {
+                    <span class="badge bg-warning ms-2">Medium</span>
+                }
+                else
+                {
+                    <span class="badge bg-success ms-2">In Stock</span>
+                }
+            </td>
         </tr>
     }
     </tbody>
 </table>
+
+<!-- Optional: Show all sizes and stock for each product in the order -->
+@foreach (var productGroup in Model.OrderItems.GroupBy(i => i.ProductSize.Product))
+{
+    <div class="mt-4">
+        <h5>Stock for <span class="text-primary">@productGroup.Key.Name</span></h5>
+        <table class="table table-bordered table-sm w-auto">
+            <thead>
+                <tr>
+                    <th>Size</th>
+                    <th>Available Stock</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var size in productGroup.Key.ProductSizes)
+            {
+                <tr>
+                    <td>@size.Size.Name</td>
+                    <td>
+                        @size.Quantity
+                        @if (size.Quantity <= 3)
+                        {
+                            <span class="badge bg-danger ms-2">Low</span>
+                        }
+                        else if (size.Quantity <= 10)
+                        {
+                            <span class="badge bg-warning ms-2">Medium</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success ms-2">In Stock</span>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
 
 <a asp-action="Manage" class="btn btn-secondary">Back to Orders</a>
 
 @if (User.IsInRole("Admin"))
 {
     <a asp-action="EditStatus" asp-route-id="@Model.Id" class="btn btn-warning mb-3">Edit Status</a>
+}
+
+@if (Model.Address != null)
+{
+    <div class="card mt-3">
+        <div class="card-header">
+            <strong>Shipping Address</strong>
+        </div>
+        <div class="card-body">
+            <p>
+                <strong>Street:</strong> @Model.Address.Street <br />
+                <strong>City:</strong> @Model.Address.City <br />
+                <strong>State:</strong> @Model.Address.State <br />
+                <strong>Postal Code:</strong> @Model.Address.PostalCode <br />
+                <strong>Country:</strong> @Model.Address.Country
+            </p>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.CancellationReason))
+{
+    <div class="alert alert-warning mt-3">
+        <strong>Cancellation Reason:</strong> @Model.CancellationReason
+    </div>
 }
