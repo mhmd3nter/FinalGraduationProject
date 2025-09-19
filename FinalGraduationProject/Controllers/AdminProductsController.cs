@@ -51,6 +51,8 @@ public class AdminProductsController : Controller
     {
         var applicationDbContext = _context.Products.Include(p => p.Brand).Include(p => p.Category);
         return View(await applicationDbContext.ToListAsync());
+        
+        
     }
 
     // GET: AdminProducts/Create
@@ -61,21 +63,59 @@ public class AdminProductsController : Controller
         return View();
     }
 
-    // POST: AdminProducts/Create
+
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Name,Description,Price,Gender,Size,Color,ImageUrl,IsActive,BrandId,CategoryId")] Product product)
+    public async Task<IActionResult> Create(Product product, IFormFile? ImageFile)
     {
+        Console.WriteLine($"BrandId: {product.BrandId}, CategoryId: {product.CategoryId}");
+
         if (ModelState.IsValid)
         {
-            _context.Add(product);
+            if (ImageFile != null && ImageFile.Length > 0)
+            {
+                var fileName = Path.GetFileName(ImageFile.FileName);
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ImageFile.CopyToAsync(stream);
+                }
+
+                product.ImageUrl = "/images/" + fileName;
+            }
+
+            _context.Products.Add(product);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
+        // ✅ لو في أخطاء نحطها في ViewBag
+        ViewBag.Errors = ModelState.Values.SelectMany(v => v.Errors)
+                                          .Select(e => e.ErrorMessage)
+                                          .ToList();
+
         ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", product.BrandId);
         ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
         return View(product);
+
+        if (ModelState.IsValid)
+        {
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+            Console.WriteLine("✅ Product saved successfully!");
+            return RedirectToAction(nameof(Index));
+        }
+        else
+        {
+            Console.WriteLine("❌ ModelState not valid");
+        }
+
     }
+    // Index example (عشان ترجع للصفحة الرئيسية بعد Create)
+
+
+
 
     // GET: AdminProducts/Edit/5
     public async Task<IActionResult> Edit(long? id)
@@ -98,7 +138,7 @@ public class AdminProductsController : Controller
     // POST: AdminProducts/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(long id, [Bind("Id,Name,Description,Price,Gender,Size,Color,ImageUrl,IsActive,BrandId,CategoryId")] Product product)
+    public async Task<IActionResult> Edit(long id, [Bind("Id,Name,Description,Price,Gender,Color,ImageUrl,IsActive,BrandId,CategoryId")] Product product)
     {
         if (id != product.Id)
         {
@@ -190,4 +230,9 @@ public class AdminProductsController : Controller
     {
         return _context.Products.Any(e => e.Id == id);
     }
+
+
+
+
+
 }

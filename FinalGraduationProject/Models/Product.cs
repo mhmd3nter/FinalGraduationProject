@@ -11,11 +11,14 @@
         public string ImageUrl { get; set; } = "";
         public bool IsActive { get; set; } = true;
 
-        public long BrandId { get; set; }
+
+        public long? BrandId { get; set; }
         public Brand Brand { get; set; } = null!;
 
-        public long CategoryId { get; set; }
+        public long? CategoryId { get; set; }
         public Category Category { get; set; } = null!;
+
+       // public int Size { get; set; }
 
         public Inventory? Inventory { get; set; }
         public ICollection<ProductSize> ProductSizes { get; set; } = new List<ProductSize>();
