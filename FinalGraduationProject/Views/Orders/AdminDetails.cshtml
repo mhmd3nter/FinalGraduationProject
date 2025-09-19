@@ -18,12 +18,29 @@
                 <strong>Status:</strong>
                 <span class="badge
                     @(Model.Status == "Completed" ? "bg-success" :
-                                            Model.Status == "Pending" ? "bg-warning text-dark" :
-                                            Model.Status == "Cancelled" ? "bg-danger" : "bg-secondary")">
+                      Model.Status == "Pending" ? "bg-warning text-dark" :
+                      Model.Status == "Cancelled" ? "bg-danger" : "bg-secondary")">
                     @Model.Status
                 </span>
             </p>
             <p><strong>Total:</strong> $@Model.TotalAmount.ToString("F2")</p>
+            @if (Model.Address != null)
+            {
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <strong>Shipping Address</strong>
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            <strong>Street:</strong> @Model.Address.Street <br />
+                            <strong>City:</strong> @Model.Address.City <br />
+                            <strong>State:</strong> @Model.Address.State <br />
+                            <strong>Postal Code:</strong> @Model.Address.PostalCode <br />
+                            <strong>Country:</strong> @Model.Address.Country
+                        </p>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 
@@ -49,12 +66,13 @@
                         <td>@item.ProductSize.Size.Name</td>
                         <td>@item.Quantity</td>
                         <td>$@item.Price.ToString("F2")</td>
-                        <td>$@(item.Price* item.Quantity)</td>
+                        <td>$@(item.Price * item.Quantity)</td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
+    
 
     <div class="d-flex justify-content-between mt-4">
         <a asp-action="Manage"
@@ -75,4 +93,4 @@
 </div>
 
 <!-- FontAwesome Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"   />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
