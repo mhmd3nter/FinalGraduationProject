@@ -82,6 +82,13 @@
                         </button>
                     </form>
                 }
+                else
+                {
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Admins cannot add products to cart.
+                    </div>
+                }
 
                 <a asp-action="Index" class="btn btn-outline-secondary mt-3">
                     <i class="fas fa-arrow-left me-1"></i> Back to Products
@@ -108,25 +115,28 @@
         const sizeSelect = document.getElementById("productSizeId");
         const qtyInput = document.getElementById("quantity");
 
-        sizeSelect.addEventListener("change", function () {
-            const selectedOption = this.options[this.selectedIndex];
-            const max = selectedOption.getAttribute("data-max");
+        if (sizeSelect) {
+            sizeSelect.addEventListener("change", function () {
+                const selectedOption = this.options[this.selectedIndex];
+                const max = selectedOption.getAttribute("data-max");
 
-            if (max) {
-                qtyInput.max = max;       // ✅ تحديد الحد الأقصى
-                qtyInput.value = 1;       // يرجع للقيمة 1 عند اختيار مقاس
-            }
-        });
+                if (max) {
+                    qtyInput.max = max;       // ✅ تحديد الحد الأقصى
+                    qtyInput.value = 1;       // يرجع للقيمة 1 عند اختيار مقاس
+                }
+            });
+        }
 
-        // ✅ لو كتب رقم أكبر من المتاح بإيده
-        qtyInput.addEventListener("input", function () {
-            let max = parseInt(this.max) || 1;
-            let val = parseInt(this.value) || 1;
+        if (qtyInput) {
+            qtyInput.addEventListener("input", function () {
+                let max = parseInt(this.max) || 1;
+                let val = parseInt(this.value) || 1;
 
-            if (val < 1) val = 1;
-            if (val > max) val = max;
-            this.value = val;
-        });
+                if (val < 1) val = 1;
+                if (val > max) val = max;
+                this.value = val;
+            });
+        }
 
         // ✅ نفس كود الإنيميشن
         const elements = document.querySelectorAll(".scroll-animate");
@@ -142,19 +152,22 @@
     });
 
     // ✅ التحقق من اختيار مقاس
-    document.getElementById('addToCartBtn').addEventListener('click', function (e) {
-        const sizeSelect = document.getElementById('productSizeId');
-        const sizeError = document.getElementById('sizeError');
+    const addBtn = document.getElementById('addToCartBtn');
+    if (addBtn) {
+        addBtn.addEventListener('click', function (e) {
+            const sizeSelect = document.getElementById('productSizeId');
+            const sizeError = document.getElementById('sizeError');
 
-        if (!sizeSelect.value || sizeSelect.options[sizeSelect.selectedIndex].disabled) {
-            e.preventDefault();
-            sizeError.style.display = "block";
-            sizeSelect.focus();
-            return;
-        } else {
-            sizeError.style.display = "none";
-        }
-    });
+            if (!sizeSelect.value || sizeSelect.options[sizeSelect.selectedIndex].disabled) {
+                e.preventDefault();
+                sizeError.style.display = "block";
+                sizeSelect.focus();
+                return;
+            } else {
+                sizeError.style.display = "none";
+            }
+        });
+    }
 </script>
 
 <!-- ✅ CSS -->

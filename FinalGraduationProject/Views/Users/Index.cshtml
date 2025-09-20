@@ -13,79 +13,56 @@
         <table class="table table-bordered table-striped table-hover align-middle shadow-sm rounded">
             <thead class="table-dark">
                 <tr>
-                    <th class="p-3">Email</th>
-                    <th class="p-3">Roles</th>
-                    <th class="p-3">Status</th>
-                    <th class="p-3 text-center">Actions</th>
+                    <th>Email</th>
+                    <th>Roles</th>
+                    <th>Status</th>
+                    <th class="text-center">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var user in Model)
                 {
+                    var roles = await UserManager.GetRolesAsync(user);
+                    bool isAdmin = roles.Contains("Admin");
+                    bool isBlocked = user.LockoutEnd != null && user.LockoutEnd > DateTimeOffset.Now;
+
                     <tr>
-                        <td class="fw-bold p-3">@user.Email</td>
-                        <td class="p-3">
-                            <span class="badge bg-info text-dark px-3 py-2">
-                                @string.Join(", ", await UserManager.GetRolesAsync(user))
-                            </span>
-                        </td>
-                        <td class="p-3">
-                            @if (user.LockoutEnd != null && user.LockoutEnd > DateTimeOffset.Now)
+                        <td>@user.Email</td>
+                        <td>@string.Join(", ", roles)</td>
+                        <td>
+                            @if (isBlocked)
                             {
-                                <span class="badge bg-danger px-3 py-2">
-                                    <i class="fas fa-ban me-1"></i> Blocked
-                                </span>
+                                <span class="badge bg-danger">Blocked</span>
                             }
                             else
                             {
-                                <span class="badge bg-success px-3 py-2">
-                                    <i class="fas fa-check-circle me-1"></i> Active
-                                </span>
+                                <span class="badge bg-success">Active</span>
                             }
                         </td>
-                        <td class="text-center p-3">
+                        <td class="text-center">
                             <div class="d-flex flex-wrap gap-2 justify-content-center">
 
-                                <!-- زرار Make Admin -->
-                                <form asp-action="MakeAdmin" asp-route-id="@user.Id" method="post">
+                                <!-- زرار Admin/Remove Admin -->
+                                <form asp-action="ToggleAdmin" asp-route-id="@user.Id" method="post">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-success btn-sm d-flex align-items-center">
-                                        <i class="fas fa-user-shield me-1"></i>
-                                        <span>Make Admin</span>
+                                    <button type="submit" id="btnAdmin_@user.Id" class="btn btn-sm @(isAdmin ? "btn-warning" : "btn-success")">
+                                        @(isAdmin ? "Remove Admin" : "Make Admin")
                                     </button>
                                 </form>
 
-                                <!-- زرار Remove Admin (أيقونة بس) -->
-                                <form asp-action="RemoveAdmin" asp-route-id="@user.Id" method="post">
+                                <!-- زرار Block/Unblock -->
+                                <form asp-action="ToggleBlock" asp-route-id="@user.Id" method="post">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-warning btn-circle" title="Remove Admin">
-                                        <i class="fas fa-user-minus"></i>
-                                    </button>
-                                </form>
-
-                                <!-- زرار Block (أيقونة بس) -->
-                                <form asp-action="Block" asp-route-id="@user.Id" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-danger btn-circle" title="Block">
-                                        <i class="fas fa-lock"></i>
-                                    </button>
-                                </form>
-
-                                <!-- زرار Unblock -->
-                                <form asp-action="Unblock" asp-route-id="@user.Id" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-secondary btn-sm d-flex align-items-center">
-                                        <i class="fas fa-unlock me-1"></i>
-                                        <span>Unblock</span>
+                                    <button type="submit" id="btnBlock_@user.Id" class="btn btn-sm @(isBlocked ? "btn-secondary" : "btn-danger")">
+                                        @(isBlocked ? "Unblock" : "Block")
                                     </button>
                                 </form>
 
                                 <!-- زرار Delete -->
                                 <form asp-action="Delete" asp-route-id="@user.Id" method="post" onsubmit="return confirm('Are you sure?');">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-outline-danger btn-sm d-flex align-items-center">
-                                        <i class="fas fa-trash me-1"></i>
-                                        <span>Delete</span>
+                                    <button type="submit" id="btnDelete_@user.Id" class="btn btn-outline-danger btn-sm">
+                                        Delete
                                     </button>
                                 </form>
 
@@ -98,20 +75,69 @@
     </div>
 </div>
 
-<!-- FontAwesome -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-
-<!-- زرار دائري (أيقونة بس) -->
+<!-- ستايل خاص بالأزرار -->
 <style>
-    .btn-circle {
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        font-size: 16px;
+    .btn-sm {
+        padding: 0.35rem 0.8rem;
+        font-size: 0.875rem;
+        border-radius: 0.35rem;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
 
+    .btn-success {
+        background-color: #198754;
+        color: white;
+        border: none;
+    }
+
+        .btn-success:hover {
+            background-color: #157347;
+        }
+
+    .btn-warning {
+        background-color: #ffc107;
+        color: black;
+        border: none;
+    }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+    }
+
+        .btn-danger:hover {
+            background-color: #b02a37;
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5c636a;
+        }
+
+    .btn-outline-danger {
+        background-color: transparent;
+        color: #dc3545;
+        border: 1px solid #dc3545;
+    }
+
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+
+    .badge {
+        padding: 0.4em 0.7em;
+        font-size: 0.85rem;
+        border-radius: 0.35rem;
     }
 </style>
