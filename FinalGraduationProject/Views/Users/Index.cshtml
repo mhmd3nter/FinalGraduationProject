@@ -13,10 +13,10 @@
         <table class="table table-bordered table-striped table-hover align-middle shadow-sm rounded">
             <thead class="table-dark">
                 <tr>
-                    <th>Email</th>
-                    <th>Roles</th>
-                    <th>Status</th>
-                    <th class="text-center">Actions</th>
+                    <th class="p-3">Email</th>
+                    <th class="p-3">Roles</th>
+                    <th class="p-3">Status</th>
+                    <th class="p-3 text-center">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,42 +27,54 @@
                     bool isBlocked = user.LockoutEnd != null && user.LockoutEnd > DateTimeOffset.Now;
 
                     <tr>
-                        <td>@user.Email</td>
-                        <td>@string.Join(", ", roles)</td>
-                        <td>
+                        <td class="fw-bold p-3">@user.Email</td>
+                        <td class="p-3">
+                            <span class="px-1">
+                                @string.Join(", ", roles)
+                            </span>
+                        </td>
+
+                        <td class="p-3">
                             @if (isBlocked)
                             {
-                                <span class="badge bg-danger">Blocked</span>
+                                <span class="badge bg-danger px-3 py-2">
+                                    <i class="fas fa-ban me-1"></i> Blocked
+                                </span>
                             }
                             else
                             {
-                                <span class="badge bg-success">Active</span>
+                                <span class="badge bg-success px-3 py-2">
+                                    <i class="fas fa-check-circle me-1"></i> Active
+                                </span>
                             }
                         </td>
-                        <td class="text-center">
+                        <td class="text-center p-3">
                             <div class="d-flex flex-wrap gap-2 justify-content-center">
 
-                                <!-- زرار Admin/Remove Admin -->
-                                <form asp-action="ToggleAdmin" asp-route-id="@user.Id" method="post">
+                                <!-- زرار Make/Remove Admin -->
+                                <form asp-action="@(isAdmin ? "RemoveAdmin" : "MakeAdmin")" asp-route-id="@user.Id" method="post">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" id="btnAdmin_@user.Id" class="btn btn-sm @(isAdmin ? "btn-warning" : "btn-success")">
-                                        @(isAdmin ? "Remove Admin" : "Make Admin")
+                                    <button type="submit" class="btn @(isAdmin ? "bbtn-success" : "btn-success") btn-sm d-flex align-items-center">
+                                        <i class="fas @(isAdmin ? "fa-user-minus" : "fa-user-shield") me-1"></i>
+                                        <span>@(isAdmin ? "Remove Admin" : "Make Admin")</span>
                                     </button>
                                 </form>
 
                                 <!-- زرار Block/Unblock -->
-                                <form asp-action="ToggleBlock" asp-route-id="@user.Id" method="post">
+                                <form asp-action="@(isBlocked ? "Unblock" : "Block")" asp-route-id="@user.Id" method="post">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" id="btnBlock_@user.Id" class="btn btn-sm @(isBlocked ? "btn-secondary" : "btn-danger")">
-                                        @(isBlocked ? "Unblock" : "Block")
+                                    <button type="submit" class="btn @(isBlocked ? "btn-secondary" : "btn-success") btn-sm d-flex align-items-center">
+                                        <i class="fas @(isBlocked ? "fa-unlock" : "fa-lock") me-1"></i>
+                                        <span>@(isBlocked ? "Unblock" : "Block")</span>
                                     </button>
                                 </form>
 
                                 <!-- زرار Delete -->
                                 <form asp-action="Delete" asp-route-id="@user.Id" method="post" onsubmit="return confirm('Are you sure?');">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" id="btnDelete_@user.Id" class="btn btn-outline-danger btn-sm">
-                                        Delete
+                                    <button type="submit" class="btn btn-outline-danger btn-sm d-flex align-items-center">
+                                        <i class="fas fa-trash me-1"></i>
+                                        <span>Delete</span>
                                     </button>
                                 </form>
 
@@ -75,69 +87,5 @@
     </div>
 </div>
 
-<!-- ستايل خاص بالأزرار -->
-<style>
-    .btn-sm {
-        padding: 0.35rem 0.8rem;
-        font-size: 0.875rem;
-        border-radius: 0.35rem;
-        transition: background-color 0.3s ease, color 0.3s ease;
-    }
-
-    .btn-success {
-        background-color: #198754;
-        color: white;
-        border: none;
-    }
-
-        .btn-success:hover {
-            background-color: #157347;
-        }
-
-    .btn-warning {
-        background-color: #ffc107;
-        color: black;
-        border: none;
-    }
-
-        .btn-warning:hover {
-            background-color: #e0a800;
-        }
-
-    .btn-danger {
-        background-color: #dc3545;
-        color: white;
-        border: none;
-    }
-
-        .btn-danger:hover {
-            background-color: #b02a37;
-        }
-
-    .btn-secondary {
-        background-color: #6c757d;
-        color: white;
-        border: none;
-    }
-
-        .btn-secondary:hover {
-            background-color: #5c636a;
-        }
-
-    .btn-outline-danger {
-        background-color: transparent;
-        color: #dc3545;
-        border: 1px solid #dc3545;
-    }
-
-        .btn-outline-danger:hover {
-            background-color: #dc3545;
-            color: white;
-        }
-
-    .badge {
-        padding: 0.4em 0.7em;
-        font-size: 0.85rem;
-        border-radius: 0.35rem;
-    }
-</style>
+<!-- FontAwesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
