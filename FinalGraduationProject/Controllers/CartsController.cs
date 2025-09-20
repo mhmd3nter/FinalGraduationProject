@@ -17,7 +17,7 @@ namespace FinalGraduationProject.Controllers
         private readonly IAntiforgery _antiforgery;
 
 
-        public CartsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager,IAntiforgery antiforgery)
+        public CartsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IAntiforgery antiforgery)
         {
             _context = context;
             _userManager = userManager;
@@ -367,10 +367,64 @@ namespace FinalGraduationProject.Controllers
                 _context.ProductSizes.Update(ci.ProductSize); // Ensure EF tracks the change
             }
 
-        
+
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Index", "Payment", new { orderId = order.Id });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> LoadFromOrder(long orderId)
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!long.TryParse(userIdString, out long userId))
+                return RedirectToAction("Index", "Home");
+
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId);
+
+            if (order == null || order.Status != "Pending")
+            {
+                TempData["ErrorMessage"] = "This order cannot be edited.";
+                return RedirectToAction("MyOrders", "Orders");
+            }
+
+            // 🗑️ امسح الكارت الحالي
+            var userCart = await _context.Carts
+                .Include(c => c.CartItems)
+                .FirstOrDefaultAsync(c => c.UserId == userId);
+
+            if (userCart == null)
+            {
+                userCart = new Cart { UserId = userId, CartItems = new List<CartItem>() };
+                _context.Carts.Add(userCart);
+            }
+            else
+            {
+                _context.CartItems.RemoveRange(userCart.CartItems);
+                userCart.CartItems.Clear();
+            }
+
+            // ➕ أضف المنتجات من الأوردر
+            foreach (var item in order.OrderItems)
+            {
+                userCart.CartItems.Add(new CartItem
+                {
+                    ProductId = item.ProductId,
+                    ProductSizeId = item.ProductSizeId,
+                    Quantity = item.Quantity
+                });
+            }
+
+            // 💾 احفظ التغييرات عشان الـ CartItem.Id يتولد ويتخزن
+            await _context.SaveChangesAsync();
+
+            // ✅ رجّع اليوزر لصفحة الكارت
+            return RedirectToAction("Index", "Carts");
+        }
+
+
+
     }
 }

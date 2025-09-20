@@ -58,12 +58,26 @@ else
                                 }
 
                                 <div class="d-flex gap-2">
-                                    <a class="btn btn-outline-primary btn-sm flex-fill" asp-controller="Orders" asp-action="Details" asp-route-id="@order.Id">Details</a>
+                                    <a class="btn btn-outline-primary btn-sm flex-fill"
+                                       asp-controller="Orders"
+                                       asp-action="Details"
+                                       asp-route-id="@order.Id">
+                                        Details
+                                    </a>
+
                                     @if (order.Status == "Pending")
                                     {
-                                        <a class="btn btn-primary btn-sm flex-fill" asp-controller="Orders" asp-action="Edit" asp-route-id="@order.Id">Edit</a>
+                                        <a class="btn btn-outline-info btn-sm flex-fill"
+                                           asp-controller="Carts"
+                                           asp-action="LoadFromOrder"
+                                           asp-route-orderId="@order.Id">
+                                            <i class="fas fa-shopping-cart me-2"></i> Continue Order
+                                        </a>
                                     }
+
+
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -78,4 +92,7 @@ else
             </button>
         </form>
     </div>
+
+
 }
+
