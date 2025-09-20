@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = Model.Name;
+    var totalStock = Model.ProductSizes.Sum(ps => ps.Quantity); // ✅ إجمالي الكمية
 }
 
 <main class="page py-5">
@@ -26,6 +27,7 @@
                     <li><strong>Brand:</strong> @Model.Brand?.Name</li>
                     <li><strong>Category:</strong> @Model.Category?.Name</li>
                     <li><strong>Color:</strong> @Model.Color</li>
+                    <li><strong>Total Stock:</strong> @totalStock</li> <!-- ✅ العدد الكلي -->
                 </ul>
 
                 <!-- 💲 السعر -->
@@ -40,6 +42,7 @@
 
                         <input type="hidden" name="productId" value="@Model.Id" />
 
+                        <!-- ✅ اختيار المقاس -->
                         <div class="mb-3">
                             <label for="productSizeId" class="form-label fw-semibold">Select Size</label>
                             <select id="productSizeId" name="productSizeId"
@@ -47,14 +50,25 @@
                                 <option value="">Choose size</option>
                                 @foreach (var ps in Model.ProductSizes)
                                 {
-                                    <option value="@ps.Id">@ps.Size.Name</option>
+                                    if (ps.Quantity > 0)
+                                    {
+                                        <option value="@ps.Id" data-max="@ps.Quantity">
+                                            @ps.Size.Name (@ps.Quantity in stock)
+                                        </option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@ps.Id" disabled>@ps.Size.Name (Out of Stock)</option>
+                                    }
                                 }
                             </select>
+
                             <div id="sizeError" class="text-danger mt-1" style="display:none;">
-                                * Please select a size
+                                * Please select a size in stock
                             </div>
                         </div>
 
+                        <!-- ✅ الكمية -->
                         <div class="d-flex align-items-center mb-3">
                             <button type="button" class="btn btn-outline-secondary" onclick="changeQty(-1)">-</button>
                             <input type="number" id="quantity" name="quantity" value="1" min="1"
@@ -62,6 +76,7 @@
                             <button type="button" class="btn btn-outline-secondary" onclick="changeQty(1)">+</button>
                         </div>
 
+                        <!-- ✅ زر الإضافة -->
                         <button type="submit" class="btn btn-glow w-100" id="addToCartBtn">
                             <i class="fas fa-shopping-cart me-2"></i> Add to Cart
                         </button>
@@ -80,15 +95,41 @@
 <script>
     function changeQty(delta) {
         let qtyInput = document.getElementById("quantity");
+        let max = parseInt(qtyInput.max) || 1;
         let current = parseInt(qtyInput.value) || 1;
+
         current += delta;
         if (current < 1) current = 1;
+        if (current > max) current = max; // ✅ مايزودش عن المتاح
         qtyInput.value = current;
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-        const elements = document.querySelectorAll(".scroll-animate");
+        const sizeSelect = document.getElementById("productSizeId");
+        const qtyInput = document.getElementById("quantity");
 
+        sizeSelect.addEventListener("change", function () {
+            const selectedOption = this.options[this.selectedIndex];
+            const max = selectedOption.getAttribute("data-max");
+
+            if (max) {
+                qtyInput.max = max;       // ✅ تحديد الحد الأقصى
+                qtyInput.value = 1;       // يرجع للقيمة 1 عند اختيار مقاس
+            }
+        });
+
+        // ✅ لو كتب رقم أكبر من المتاح بإيده
+        qtyInput.addEventListener("input", function () {
+            let max = parseInt(this.max) || 1;
+            let val = parseInt(this.value) || 1;
+
+            if (val < 1) val = 1;
+            if (val > max) val = max;
+            this.value = val;
+        });
+
+        // ✅ نفس كود الإنيميشن
+        const elements = document.querySelectorAll(".scroll-animate");
         const observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -97,20 +138,32 @@
                 }
             });
         }, { threshold: 0.2 });
-
         elements.forEach(el => observer.observe(el));
+    });
+
+    // ✅ التحقق من اختيار مقاس
+    document.getElementById('addToCartBtn').addEventListener('click', function (e) {
+        const sizeSelect = document.getElementById('productSizeId');
+        const sizeError = document.getElementById('sizeError');
+
+        if (!sizeSelect.value || sizeSelect.options[sizeSelect.selectedIndex].disabled) {
+            e.preventDefault();
+            sizeError.style.display = "block";
+            sizeSelect.focus();
+            return;
+        } else {
+            sizeError.style.display = "none";
+        }
     });
 </script>
 
 <!-- ✅ CSS -->
 <style>
-    /* 🌟 خلفية الصفحة */
     main.page {
         background: #eef1f6;
         color: #212529;
     }
 
-    /* ✨ غلاف المنتجات */
     .products-wrapper {
         background: #ffffff;
         box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
@@ -118,7 +171,6 @@
         padding: 2rem;
     }
 
-    /* ✨ الكروت */
     .stylish-card {
         background: #ffffff;
         transition: all 0.4s ease;
@@ -131,7 +183,6 @@
             box-shadow: 0 12px 30px rgba(0, 123, 255, 0.25), 0 0 18px rgba(13, 110, 253, 0.15);
         }
 
-    /* ✨ العنوان */
     .animate-title {
         animation: fadeInDown 1s ease-in-out forwards;
         text-shadow: 0 0 8px rgba(13,110,253,0.3);
@@ -139,30 +190,19 @@
     }
 
     @@keyframes fadeInDown {
-        from
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
 
-    {
-        opacity: 0;
-        transform: translateY(-30px);
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    }
-
-    /* ✨ النصوص الثانوية */
-    .text-muted {
-        color: #6c757d !important;
-    }
-
-    /* ✨ زر جلو */
-    
 
     .btn-glow {
-        background: #fd7e14; /* برتقالي */
+        background: #fd7e14;
         border: none;
         color: #fff;
         font-weight: 600;
@@ -172,16 +212,12 @@
     }
 
         .btn-glow:hover {
-            background: linear-gradient(45deg, #fd7e14, #ffae42); /* برتقالي لامع */
+            background: linear-gradient(45deg, #fd7e14, #ffae42);
             box-shadow: 0 0 15px rgba(253, 126, 20, 0.5);
             transform: translateY(-2px);
             color: #fff !important;
         }
 
-
-        
-
-    /* ✨ Scroll Animation */
     .scroll-animate {
         opacity: 0;
         transform: translateY(50px) scale(0.95);
