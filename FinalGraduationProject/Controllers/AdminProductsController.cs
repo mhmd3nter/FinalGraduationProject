@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace FinalGraduationProject.Controllers
 {
@@ -26,7 +24,7 @@ namespace FinalGraduationProject.Controllers
             // Website statistics
             ViewBag.UserCount = await _context.Users.CountAsync();
             ViewBag.OrderCount = await _context.Orders
-                .Where(o => o.Status != "Cancelled" && o.Status!= "Pending")
+                .Where(o => o.Status != "Cancelled" && o.Status != "Pending")
                 .CountAsync();
             ViewBag.ProductCount = await _context.Products.CountAsync();
             ViewBag.TotalSales = await _context.Orders
@@ -194,61 +192,176 @@ namespace FinalGraduationProject.Controllers
             return View(product);
         }
 
+
         // GET: AdminProducts/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products
+                .Include(p => p.ProductSizes)
+                .Include(p => p.Brand)
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
             if (product == null)
-            {
                 return NotFound();
-            }
+
+            // جهز القايمة بتاعت البراندز والكategories
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", product.BrandId);
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
+
+            // هات كل المقاسات من الداتا بيز
+            var allSizes = await _context.Sizes.ToListAsync();
+
+            // بنجهز SizeQuantities للفيو
+            var sizeQuantities = allSizes.Select(s => new SizeQuantityDto
+            {
+                SizeId = s.Id,
+                SizeName = s.Name,
+                IsSelected = product.ProductSizes.Any(ps => ps.SizeId == s.Id),
+                Quantity = product.ProductSizes.FirstOrDefault(ps => ps.SizeId == s.Id)?.Quantity ?? 0
+            }).ToList();
+
+            ViewBag.SizeQuantities = sizeQuantities;
+
+            // حساب اجمالي المخزون
+            ViewBag.TotalStock = sizeQuantities.Sum(sq => sq.Quantity);
+
             return View(product);
         }
 
-        // POST: AdminProducts/Edit/5
+
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,Name,Description,Price,Gender,Color,ImageUrl,IsActive,BrandId,CategoryId")] Product product)
+        public async Task<IActionResult> Edit(long id, Product product, Dictionary<int, SizeQuantityDto> SizeQuantities)
         {
             if (id != product.Id)
-            {
                 return NotFound();
+
+            // شيل الحاجات اللي بنعالجها يدوي من ModelState
+            ModelState.Remove("ProductSizes");
+            ModelState.Remove("Brand");
+            ModelState.Remove("Category");
+            ModelState.Remove("Inventory");
+            ModelState.Remove("OrderItems");
+            ModelState.Remove("CartItems");
+
+            var keysToRemove = ModelState.Keys.Where(k => k.StartsWith("SizeQuantities")).ToList();
+            foreach (var key in keysToRemove)
+            {
+                ModelState.Remove(key);
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(product);
+                    // هات المنتج من الداتا بيز بالـ ProductSizes والـ Inventory
+                    var existingProduct = await _context.Products
+                        .Include(p => p.ProductSizes)
+                        .Include(p => p.Inventory)
+                        .FirstOrDefaultAsync(p => p.Id == id);
+
+                    if (existingProduct == null)
+                        return NotFound();
+
+                    // عدّل بيانات المنتج الأساسية
+                    existingProduct.Name = product.Name;
+                    existingProduct.Description = product.Description;
+                    existingProduct.Price = product.Price;
+                    existingProduct.Gender = product.Gender;
+                    existingProduct.Color = product.Color;
+                    existingProduct.ImageUrl = product.ImageUrl;
+                    existingProduct.IsActive = product.IsActive;
+                    existingProduct.BrandId = product.BrandId;
+                    existingProduct.CategoryId = product.CategoryId;
+
+                    // تحديث المقاسات والكميات
+                    if (SizeQuantities != null && SizeQuantities.Any())
+                    {
+                        // امسح المقاسات القديمة
+                        _context.ProductSizes.RemoveRange(existingProduct.ProductSizes);
+
+                        // اضف المقاسات الجديدة من الفورم
+                        var productSizes = new List<ProductSize>();
+                        var totalQuantity = 0;
+
+                        foreach (var sq in SizeQuantities.Values)
+                        {
+                            if (sq.IsSelected && sq.Quantity > 0)
+                            {
+                                productSizes.Add(new ProductSize
+                                {
+                                    ProductId = existingProduct.Id,
+                                    SizeId = sq.SizeId,
+                                    Quantity = sq.Quantity
+                                });
+                                totalQuantity += sq.Quantity;
+                            }
+                        }
+
+                        if (productSizes.Any())
+                            await _context.ProductSizes.AddRangeAsync(productSizes);
+
+                        // تحديث المخزون
+                        if (existingProduct.Inventory == null)
+                        {
+                            existingProduct.Inventory = new Inventory
+                            {
+                                ProductId = existingProduct.Id,
+                                QuantityAvailable = totalQuantity,
+                                QuantityReserved = 0,
+                                SafetyStockThreshold = 5,
+                                LastStockChangeAt = DateTime.UtcNow
+                            };
+                        }
+                        else
+                        {
+                            existingProduct.Inventory.QuantityAvailable = totalQuantity;
+                            existingProduct.Inventory.LastStockChangeAt = DateTime.UtcNow;
+                        }
+                    }
+
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "✅ Product updated successfully!";
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ProductExists(product.Id))
-                    {
+                    if (!_context.Products.Any(p => p.Id == product.Id))
                         return NotFound();
-                    }
                     else
-                    {
                         throw;
-                    }
                 }
-                return RedirectToAction(nameof(Index));
             }
+
+            // لو فيه مشكلة في ModelState يرجع نفس الفورم بالبيانات
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", product.BrandId);
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
+
+            // رجّع المقاسات عشان الفورم يتعرض صح
+            var allSizes = await _context.Sizes.ToListAsync();
+            var sizeQuantities = allSizes.Select(s => new SizeQuantityDto
+            {
+                SizeId = s.Id,
+                IsSelected = SizeQuantities.ContainsKey(s.Id) && SizeQuantities[s.Id].IsSelected,
+                Quantity = SizeQuantities.ContainsKey(s.Id) ? SizeQuantities[s.Id].Quantity : 0
+            }).ToList();
+
+            ViewBag.SizeQuantities = sizeQuantities;
+            ViewBag.TotalStock = sizeQuantities.Sum(sq => sq.Quantity);
+
             return View(product);
         }
 
-        // GET: AdminProducts/Delete/5
-        public async Task<IActionResult> Delete(long? id)
+
+
+        // GET: Product/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
             {
@@ -259,27 +372,37 @@ namespace FinalGraduationProject.Controllers
                 .Include(p => p.Brand)
                 .Include(p => p.Category)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (product == null)
             {
                 return NotFound();
             }
 
-            return View(product);
+            return View(product); // دا بيرجع الفيو اللي انت كاتبه فوق
         }
 
-        // POST: AdminProducts/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: Product/DeleteConfirmed/5
+        [HttpPost, ActionName("DeleteConfirmed")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(long id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products
+                .Include(p => p.ProductSizes)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
             if (product != null)
             {
+                // لو عايز تحذف الـ ProductSizes المرتبطة
+                if (product.ProductSizes != null && product.ProductSizes.Any())
+                {
+                    _context.ProductSizes.RemoveRange(product.ProductSizes);
+                }
+
                 _context.Products.Remove(product);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index)); // بيرجع لصفحة المنتجات
         }
 
         // GET: AdminProducts/Details/5
@@ -307,5 +430,7 @@ namespace FinalGraduationProject.Controllers
         {
             return _context.Products.Any(e => e.Id == id);
         }
+
+
     }
 }

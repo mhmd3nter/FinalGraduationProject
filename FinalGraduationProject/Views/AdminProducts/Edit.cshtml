@@ -1,6 +1,7 @@
 ﻿@model FinalGraduationProject.Models.Product
 @{
     ViewData["Title"] = "Edit Product";
+    var sizeQuantities = ViewBag.SizeQuantities as List<FinalGraduationProject.Models.SizeQuantityDto>;
 }
 
 <div class="container py-5">
@@ -8,54 +9,91 @@
     <form asp-action="Edit" method="post" class="shadow rounded bg-white p-4">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Id" />
+
         <div class="mb-3">
             <label asp-for="Name" class="form-label"></label>
             <input asp-for="Name" class="form-control" />
             <span asp-validation-for="Name" class="text-danger"></span>
         </div>
+
         <div class="mb-3">
             <label asp-for="BrandId" class="form-label">Brand</label>
             <select asp-for="BrandId" class="form-select" asp-items="ViewBag.BrandId"></select>
             <span asp-validation-for="BrandId" class="text-danger"></span>
         </div>
+
         <div class="mb-3">
             <label asp-for="CategoryId" class="form-label">Category</label>
             <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId"></select>
             <span asp-validation-for="CategoryId" class="text-danger"></span>
         </div>
+
         <div class="mb-3">
             <label asp-for="Price" class="form-label"></label>
             <input asp-for="Price" class="form-control" />
             <span asp-validation-for="Price" class="text-danger"></span>
         </div>
+
         <div class="mb-3">
             <label asp-for="Description" class="form-label"></label>
             <textarea asp-for="Description" class="form-control"></textarea>
             <span asp-validation-for="Description" class="text-danger"></span>
         </div>
+
         <div class="mb-3">
             <label asp-for="Gender" class="form-label"></label>
             <input asp-for="Gender" class="form-control" />
             <span asp-validation-for="Gender" class="text-danger"></span>
         </div>
+
         <div class="mb-3">
             <label asp-for="Color" class="form-label"></label>
             <input asp-for="Color" class="form-control" />
             <span asp-validation-for="Color" class="text-danger"></span>
         </div>
+
         <div class="mb-3">
             <label asp-for="ImageUrl" class="form-label"></label>
             <input asp-for="ImageUrl" class="form-control" />
             <span asp-validation-for="ImageUrl" class="text-danger"></span>
         </div>
+
         <div class="mb-3 form-check">
             <input asp-for="IsActive" class="form-check-input" type="checkbox" />
             <label asp-for="IsActive" class="form-check-label"></label>
         </div>
+
+        <!-- ✅ تعديل جزء المقاسات -->
+        @if (sizeQuantities != null && sizeQuantities.Any())
+        {
+            <h5 class="text-primary mt-4">Available Sizes & Stock</h5>
+            <div class="row">
+                @foreach (var sq in sizeQuantities)
+                {
+                    <div class="col-md-3 col-sm-4 col-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <label class="form-label fw-bold">@sq.SizeName</label> <!-- 👈 اسم المقاس -->
+                                <input type="number"
+                                       name="SizeQuantities[@sq.SizeId].Quantity"
+                                       value="@sq.Quantity"
+                                       class="form-control form-control-sm"
+                                       min="0" />
+                                <input type="hidden" name="SizeQuantities[@sq.SizeId].SizeId" value="@sq.SizeId" />
+                                <input type="hidden" name="SizeQuantities[@sq.SizeId].IsSelected"
+                                       value="@(sq.IsSelected ? "true" : "false")" />
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
         <button type="submit" class="btn btn-primary btn-lg">Save</button>
         <a asp-action="Index" class="btn btn-secondary btn-lg ms-2">Cancel</a>
     </form>
 </div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
