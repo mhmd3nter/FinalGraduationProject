@@ -4,12 +4,12 @@
     ViewData["Title"] = Model.Name;
 }
 
-<main class="page py-5" style="background:#f8f9fa;">
-    <div class="container">
-        <div class="row g-5">
-            <!-- صورة المنتج -->
+<main class="page py-5">
+    <div class="container products-wrapper p-4">
+        <div class="row g-5 align-items-center">
+            <!-- 🖼️ صورة المنتج -->
             <div class="col-md-5">
-                <div class="border rounded shadow-sm p-2 bg-white">
+                <div class="border rounded shadow-sm bg-white p-2 stylish-card scroll-animate">
                     <img src="@Url.Content(Model.ImageUrl)"
                          alt="@Model.Name"
                          class="img-fluid rounded product-image"
@@ -17,9 +17,9 @@
                 </div>
             </div>
 
-            <!-- تفاصيل المنتج -->
-            <div class="col-md-7 position-relative">
-                <h2 class="fw-bold mb-3 text-primary">@Model.Name</h2>
+            <!-- 📋 تفاصيل المنتج -->
+            <div class="col-md-7 scroll-animate">
+                <h2 class="fw-bold mb-3 animate-title text-primary">@Model.Name</h2>
                 <p class="text-muted">@Model.Description</p>
 
                 <ul class="list-unstyled mb-4">
@@ -28,37 +28,41 @@
                     <li><strong>Color:</strong> @Model.Color</li>
                 </ul>
 
-                <!-- السعر -->
-                <h3 class="mb-4 text-primary">$@Model.Price</h3>
+                <!-- 💲 السعر -->
+                <h3 class="mb-4 fw-bold text-primary">$@Model.Price</h3>
 
-                <!-- Add to Cart -->
+                <!-- 🛒 Add to Cart -->
                 @if (!User.IsInRole("Admin"))
                 {
-                    <form asp-controller="Carts" asp-action="AddToCart" method="post" class="border p-3 bg-light rounded">
+                    <form asp-controller="Carts" asp-action="AddToCart" method="post"
+                          class="border p-3 bg-light rounded shadow-sm">
                         @Html.AntiForgeryToken()
 
                         <input type="hidden" name="productId" value="@Model.Id" />
 
                         <div class="mb-3">
                             <label for="productSizeId" class="form-label fw-semibold">Select Size</label>
-                            <select id="productSizeId" name="productSizeId" class="form-select shadow-sm" required>
+                            <select id="productSizeId" name="productSizeId"
+                                    class="form-select shadow-sm" required>
                                 <option value="">Choose size</option>
                                 @foreach (var ps in Model.ProductSizes)
                                 {
                                     <option value="@ps.Id">@ps.Size.Name</option>
                                 }
                             </select>
-                            <div id="sizeError" class="text-danger mt-1" style="display:none;">* Please select a size</div>
+                            <div id="sizeError" class="text-danger mt-1" style="display:none;">
+                                * Please select a size
+                            </div>
                         </div>
 
                         <div class="d-flex align-items-center mb-3">
-                            <button type="button" class="btn btn-light" onclick="changeQty(-1)">-</button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="changeQty(-1)">-</button>
                             <input type="number" id="quantity" name="quantity" value="1" min="1"
                                    class="form-control text-center mx-2" style="width:70px;">
-                            <button type="button" class="btn btn-light" onclick="changeQty(1)">+</button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="changeQty(1)">+</button>
                         </div>
 
-                        <button type="submit" class="btn btn-outline-secondary" id="addToCartBtn">
+                        <button type="submit" class="btn btn-glow w-100" id="addToCartBtn">
                             <i class="fas fa-shopping-cart me-2"></i> Add to Cart
                         </button>
                     </form>
@@ -72,6 +76,7 @@
     </div>
 </main>
 
+<!-- ✅ JavaScript -->
 <script>
     function changeQty(delta) {
         let qtyInput = document.getElementById("quantity");
@@ -81,91 +86,112 @@
         qtyInput.value = current;
     }
 
-    document.getElementById('addToCartBtn').addEventListener('click', function (e) {
-        e.preventDefault();
+    document.addEventListener("DOMContentLoaded", () => {
+        const elements = document.querySelectorAll(".scroll-animate");
 
-        const form = this.closest("form");
-        const img = document.querySelector('.product-image');
-        const cartIcon = document.querySelector('#cartIcon, .cart-icon-navbar, .fa-shopping-cart');
-        const badge = document.getElementById('cartBadge');
-        const sizeSelect = document.getElementById('productSizeId');
-        const sizeError = document.getElementById('sizeError');
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("show");
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.2 });
 
-        // ⬅️ تحقق من اختيار السايز
-        if (!sizeSelect.value) {
-            sizeError.style.display = "block";
-            sizeSelect.focus();
-            return; // ما يحصلش الأنيميشن ولا يتبعت الفورم
-        } else {
-            sizeError.style.display = "none";
-        }
-
-        if (!img || !cartIcon) {
-            form.submit();
-            return;
-        }
-
-        // Clone image and animate
-        const imgRect = img.getBoundingClientRect();
-        const cartRect = cartIcon.getBoundingClientRect();
-        const flyImg = img.cloneNode(true);
-        flyImg.classList.add('fly-img');
-        document.body.appendChild(flyImg);
-
-        flyImg.style.position = "fixed";
-        flyImg.style.left = imgRect.left + 'px';
-        flyImg.style.top = imgRect.top + 'px';
-        flyImg.style.width = imgRect.width + 'px';
-        flyImg.style.height = imgRect.height + 'px';
-        flyImg.style.transition = "all 0.8s ease-in-out";
-        flyImg.style.zIndex = 1000;
-
-        setTimeout(() => {
-            flyImg.style.transform = `translate(${cartRect.left - imgRect.left}px, ${cartRect.top - imgRect.top}px) scale(0.2)`;
-            flyImg.style.opacity = 0.2;
-        }, 10);
-
-        setTimeout(() => {
-            flyImg.remove();
-            cartIcon.classList.add('cart-bounce');
-            if (badge) {
-                badge.style.display = 'inline-block';
-                badge.classList.remove('cart-badge-anim');
-                void badge.offsetWidth;
-                badge.classList.add('cart-badge-anim');
-                setTimeout(() => { badge.style.display = 'none'; }, 1200);
-            }
-            setTimeout(() => cartIcon.classList.remove('cart-bounce'), 700);
-
-            form.submit();
-        }, 900);
+        elements.forEach(el => observer.observe(el));
     });
 </script>
 
+<!-- ✅ CSS -->
 <style>
-    .fly-img {
-        border-radius: 10px;
-        pointer-events: none;
+    /* 🌟 خلفية الصفحة */
+    main.page {
+        background: #eef1f6;
+        color: #212529;
     }
 
-    .cart-bounce {
-        animation: bounce 0.6s;
+    /* ✨ غلاف المنتجات */
+    .products-wrapper {
+        background: #ffffff;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        border-radius: 1rem;
+        padding: 2rem;
     }
 
-    .cart-badge-anim {
-        animation: pop 0.6s;
+    /* ✨ الكروت */
+    .stylish-card {
+        background: #ffffff;
+        transition: all 0.4s ease;
+        border: 1px solid rgba(0,0,0,0.05);
     }
 
-    /* Add to Cart button matches Back to Products button */
-    .btn-outline-secondary {
-        border-width: 2px;
+        .stylish-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            background: #ffffff;
+            box-shadow: 0 12px 30px rgba(0, 123, 255, 0.25), 0 0 18px rgba(13, 110, 253, 0.15);
+        }
+
+    /* ✨ العنوان */
+    .animate-title {
+        animation: fadeInDown 1s ease-in-out forwards;
+        text-shadow: 0 0 8px rgba(13,110,253,0.3);
+        color: #0d6efd;
     }
-    .btn-outline-secondary:hover, .btn-outline-secondary:focus {
-        background-color: #6c757d !important;
-        color: #fff !important;
-        border-color: #6c757d !important;
-        transition: background 0.2s, color 0.2s, border-color 0.2s;
+
+    @@keyframes fadeInDown {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(-30px);
     }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* ✨ النصوص الثانوية */
+    .text-muted {
+        color: #6c757d !important;
+    }
+
+    /* ✨ زر جلو */
+    
+
+    .btn-glow {
+        background: #fd7e14; /* برتقالي */
+        border: none;
+        color: #fff;
+        font-weight: 600;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+        .btn-glow:hover {
+            background: linear-gradient(45deg, #fd7e14, #ffae42); /* برتقالي لامع */
+            box-shadow: 0 0 15px rgba(253, 126, 20, 0.5);
+            transform: translateY(-2px);
+            color: #fff !important;
+        }
+
+
+        
+
+    /* ✨ Scroll Animation */
+    .scroll-animate {
+        opacity: 0;
+        transform: translateY(50px) scale(0.95);
+        transition: all 0.9s ease;
+    }
+
+        .scroll-animate.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
 </style>
 
 <link rel="stylesheet"

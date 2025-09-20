@@ -41,7 +41,7 @@
 
 </head>
 
-<body>
+<body >
 
     <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
         <defs>
@@ -176,6 +176,7 @@
                         </a>
                     </div>
                 </div>
+
 
                 <div class="col-sm-6 offset-sm-2 offset-md-0 col-lg-5 d-none d-lg-block">
                     <div class="search-bar row bg-light p-2 my-2 rounded-4">
@@ -561,6 +562,12 @@
 
 
 
+    <script>
+        document.getElementById("themeToggle").addEventListener("click", function () {
+            document.body.classList.toggle("dark-theme");
+            this.textContent = document.body.classList.contains("dark-theme") ? "☀️" : "🌙";
+        });
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 

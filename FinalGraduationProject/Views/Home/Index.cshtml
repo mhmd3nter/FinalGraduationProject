@@ -128,86 +128,250 @@
     </div>
 </section>
 
-<main class="page py-5" style="background:#f8f9fa;">
+
+<main class="page py-5">
     <div class="container">
-        <!-- عنوان الصفحة -->
-        <div class="text-center mb-5">
-            <h1 class="fw-bold text-primary">Welcome to Our Store</h1>
-            <p class="text-muted">Discover our latest products and best offers</p>
-        </div>
+        <!-- ✨ غلاف المنتجات -->
+        <div class="products-wrapper shadow-lg rounded-5 p-5">
+            <!-- عنوان الصفحة -->
+            <div class="text-center mb-5">
+                <h1 class="fw-bold text-primary display-4 animate-title">
+                    Welcome to Our Store
+                </h1>
+                <p class="text-muted-custom fs-5">Discover our latest products and best offers</p>
+            </div>
 
-        <!-- شبكة المنتجات -->
-        <div class="product-grid row g-4">
-            @foreach (var item in Model)
-            {
-                var stock = item.ProductSizes.Sum(ps => ps.Quantity);
+            <!-- شبكة المنتجات -->
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+                @foreach (var item in Model)
+                {
+                    var stock = item.ProductSizes.Sum(ps => ps.Quantity);
 
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                    <div class="card h-100 border-0 shadow-sm rounded-3 product-card">
-                        <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Id" class="d-block overflow-hidden">
-                            <img src="@Url.Content(item.ImageUrl)"
-                                 alt="@item.Name"
-                                 class="card-img-top img-fluid"
-                                 style="height:220px; object-fit:cover;" />
-                        </a>
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title mb-1">
-                                <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Id"
-                                   class="text-decoration-none text-dark fw-semibold">
-                                    @item.Name
-                                </a>
-                            </h5>
-                            <p class="card-text text-muted small mb-2">
-                                @item.Brand?.Name | @item.Category?.Name
-                            </p>
-                            <p class="mb-2">
-                                <strong class="text-primary">$@item.Price</strong>
-                            </p>
-
-                            <div class="small mb-2">
-                                <strong>Sizes:</strong> @string.Join(", ", item.ProductSizes.Select(ps => ps.Size.Name))<br />
-                                <strong>Color:</strong> @item.Color
-                            </div>
-
-                            <!-- ✅ حالة الستوك -->
-                            <div class="mb-2">
-                                @if (stock == 0)
-                                {
-                                    <span class="badge bg-danger">Out of Stock</span>
-                                }
-                                else if (stock < 5)
-                                {
-                                    <span class="badge bg-warning text-dark">Low Stock: @stock left</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-success">In Stock: @stock</span>
-                                }
-                            </div>
-
-                            <!-- ✅ زر العرض أو المنع -->
-                            <div class="mt-auto">
-                                @if (stock == 0)
-                                {
-                                    <button class="btn btn-sm btn-secondary w-100" disabled>
-                                        <i class="fas fa-ban"></i> Not Available
-                                    </button>
-                                }
-                                else
-                                {
+                    <div class="col scroll-animate">
+                        <div class="card h-100 border-0 shadow-lg rounded-4 stylish-card">
+                            <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Id"
+                               class="d-block overflow-hidden rounded-top-4">
+                                <img src="@Url.Content(item.ImageUrl)"
+                                     alt="@item.Name"
+                                     class="card-img-top img-fluid"
+                                     style="height:280px; object-fit:cover;" />
+                            </a>
+                            <div class="card-body d-flex flex-column p-4">
+                                <h5 class="card-title mb-2 fw-bold text-light">
                                     <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Id"
-                                       class="btn btn-sm btn-outline-primary w-100">
-                                        <i class="fas fa-eye"></i> View
+                                       class="text-decoration-none text-light">
+                                        @item.Name
                                     </a>
-                                }
+                                </h5>
+                                <p class="card-text text-muted-custom small mb-2">
+                                    @item.Brand?.Name | @item.Category?.Name
+                                </p>
+                                <p class="mb-3">
+                                    <strong class="text-primary fs-4">$@item.Price</strong>
+                                </p>
+
+                                <div class="small mb-3 text-muted-custom">
+                                    <strong>Sizes:</strong> @string.Join(", ", item.ProductSizes.Select(ps => ps.Size.Name))<br />
+                                    <strong>Color:</strong> @item.Color
+                                </div>
+
+                                <!-- ✅ حالة الستوك -->
+                                <div class="mb-3">
+                                    @if (stock == 0)
+                                    {
+                                        <span class="badge bg-danger bg-gradient">Out of Stock</span>
+                                    }
+                                    else if (stock < 5)
+                                    {
+                                        <span class="badge bg-warning text-dark bg-gradient">Low Stock: @stock left</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success bg-gradient">In Stock: @stock</span>
+                                    }
+                                </div>
+
+                                <!-- ✅ زر العرض أو المنع -->
+                                <div class="mt-auto">
+                                    @if (stock == 0)
+                                    {
+                                        <button class="btn btn-lg btn-secondary w-100 rounded-pill" disabled>
+                                            <i class="fas fa-ban"></i> Not Available
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Id"
+                                           class="btn btn-lg btn-outline-primary w-100 rounded-pill btn-glow">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    }
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            }
+                }
+            </div>
         </div>
     </div>
 </main>
+
+<!-- ✨ زر Scroll To Top -->
+<button id="scrollTopBtn"><i class="fas fa-arrow-up"></i></button>
+
+<!-- ✨ CSS -->
+<style>
+    /* ✨ خلفية الصفحة */
+    main.page {
+        background: #eef1f6; /* رمادي فاتح أنعم من الأبيض */
+        color: #212529; /* النصوص أسود داكن */
+    }
+
+    /* ✨ غلاف المنتجات */
+    .products-wrapper {
+        background: #ffffff; /* أبيض */
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08); /* ظل ناعم */
+        border-radius: 1rem;
+        padding: 2rem;
+        color: #212529;
+    }
+
+    /* ✨ الكروت */
+    .stylish-card {
+        background: #ffffff; /* أبيض صريح */
+        transition: all 0.4s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+        color: #212529;
+    }
+
+        .stylish-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            background: #ffffff;
+            box-shadow: 0 12px 30px rgba(0, 123, 255, 0.25), 0 0 18px rgba(13, 110, 253, 0.15);
+        }
+
+    /* ✨ العنوان */
+    .animate-title {
+        animation: fadeInDown 1s ease-in-out forwards;
+        text-shadow: 0 0 8px rgba(13,110,253,0.3);
+        color: #0d6efd; /* الأزرق الأساسي */
+    }
+
+    @@keyframes fadeInDown {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+    /* ✨ اسم المنتج */
+    .stylish-card .card-title a {
+        color: #212529 !important; /* أسود داكن */
+        font-weight: 600; /* خط عريض */
+        font-size: 1.1rem;
+    }
+
+        .stylish-card .card-title a:hover {
+            color: #0d6efd !important; /* أزرق عند hover */
+            text-decoration: none;
+        }
+
+
+    /* ✨ النصوص الثانوية */
+    .text-muted-custom {
+        color: #6c757d !important; /* رمادي بوتستراب */
+    }
+
+    /* ✨ زر جلو */
+    .btn-glow:hover {
+        background: linear-gradient(45deg, #0d6efd, #66b2ff);
+        box-shadow: 0 0 20px rgba(13,110,253,0.4);
+        color: #fff !important;
+    }
+
+    /* ✨ Scroll Animation للكروت */
+    .scroll-animate {
+        opacity: 0;
+        transform: translateY(50px) scale(0.95);
+        transition: all 0.9s ease;
+    }
+
+        .scroll-animate.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+    /* ✨ زر Scroll To Top */
+    #scrollTopBtn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 999;
+        display: none;
+        background: #0d6efd;
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        transition: background 0.3s ease, transform 0.3s ease;
+    }
+
+        #scrollTopBtn:hover {
+            background: #66b2ff;
+            transform: translateY(-3px);
+        }
+</style>
+
+
+<!-- ✨ JavaScript -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const elements = document.querySelectorAll(".scroll-animate");
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("show");
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.2 });
+
+        elements.forEach(el => observer.observe(el));
+
+        // Scroll To Top Button
+        const scrollTopBtn = document.getElementById("scrollTopBtn");
+        window.addEventListener("scroll", () => {
+            if (window.scrollY > 300) {
+                scrollTopBtn.style.display = "block";
+            } else {
+                scrollTopBtn.style.display = "none";
+            }
+        });
+
+        scrollTopBtn.addEventListener("click", () => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+    });
+</script>
+
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+
+
+
+
 
 <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
