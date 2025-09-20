@@ -235,6 +235,8 @@ namespace FinalGraduationProject.Controllers
 
 
 
+        // In the Edit POST action, change the inner variable name to avoid CS0136 shadowing
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, Product product, Dictionary<int, SizeQuantityDto> SizeQuantities)
@@ -242,7 +244,6 @@ namespace FinalGraduationProject.Controllers
             if (id != product.Id)
                 return NotFound();
 
-            // شيل الحاجات اللي بنعالجها يدوي من ModelState
             ModelState.Remove("ProductSizes");
             ModelState.Remove("Brand");
             ModelState.Remove("Category");
@@ -252,15 +253,12 @@ namespace FinalGraduationProject.Controllers
 
             var keysToRemove = ModelState.Keys.Where(k => k.StartsWith("SizeQuantities")).ToList();
             foreach (var key in keysToRemove)
-            {
                 ModelState.Remove(key);
-            }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // هات المنتج من الداتا بيز بالـ ProductSizes والـ Inventory
                     var existingProduct = await _context.Products
                         .Include(p => p.ProductSizes)
                         .Include(p => p.Inventory)
@@ -269,7 +267,6 @@ namespace FinalGraduationProject.Controllers
                     if (existingProduct == null)
                         return NotFound();
 
-                    // عدّل بيانات المنتج الأساسية
                     existingProduct.Name = product.Name;
                     existingProduct.Description = product.Description;
                     existingProduct.Price = product.Price;
@@ -280,34 +277,73 @@ namespace FinalGraduationProject.Controllers
                     existingProduct.BrandId = product.BrandId;
                     existingProduct.CategoryId = product.CategoryId;
 
-                    // تحديث المقاسات والكميات
                     if (SizeQuantities != null && SizeQuantities.Any())
                     {
-                        // امسح المقاسات القديمة
-                        _context.ProductSizes.RemoveRange(existingProduct.ProductSizes);
+                        var existingPsList = existingProduct.ProductSizes.ToList();
+                        var existingPsIds = existingPsList.Select(ps => ps.Id).ToList();
 
-                        // اضف المقاسات الجديدة من الفورم
-                        var productSizes = new List<ProductSize>();
+                        var referencedPsIds = await _context.OrderItems
+                            .Where(oi => existingPsIds.Contains(oi.ProductSizeId))
+                            .Select(oi => oi.ProductSizeId)
+                            .Distinct()
+                            .ToListAsync();
+
+                        var referencedButDeselected = existingPsList
+                            .Where(ps => referencedPsIds.Contains(ps.Id) &&
+                                         (!SizeQuantities.ContainsKey(ps.SizeId) || !SizeQuantities[ps.SizeId].IsSelected))
+                            .ToList();
+
+                        if (referencedButDeselected.Any())
+                        {
+                            ModelState.AddModelError(string.Empty, "One or more sizes are used in existing orders and cannot be removed. Keep them or set quantity to 0.");
+                            ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", product.BrandId);
+                            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
+                            var allSizes = await _context.Sizes.ToListAsync();
+                            var sizeQuantitiesForView = allSizes.Select(s => new SizeQuantityDto
+                            {
+                                SizeId = s.Id,
+                                IsSelected = SizeQuantities.ContainsKey(s.Id) && SizeQuantities[s.Id].IsSelected,
+                                Quantity = SizeQuantities.ContainsKey(s.Id) ? SizeQuantities[s.Id].Quantity : 0
+                            }).ToList();
+                            ViewBag.SizeQuantities = sizeQuantitiesForView;
+                            ViewBag.TotalStock = sizeQuantitiesForView.Sum(sq => sq.Quantity);
+                            return View(product);
+                        }
+
+                        var removable = existingPsList.Where(ps => !referencedPsIds.Contains(ps.Id)).ToList();
+                        if (removable.Any())
+                            _context.ProductSizes.RemoveRange(removable);
+
+                        var existingBySizeId = existingPsList.ToDictionary(ps => ps.SizeId);
+
+                        var productSizesToAdd = new List<ProductSize>();
                         var totalQuantity = 0;
 
                         foreach (var sq in SizeQuantities.Values)
                         {
                             if (sq.IsSelected && sq.Quantity > 0)
                             {
-                                productSizes.Add(new ProductSize
+                                if (existingBySizeId.TryGetValue(sq.SizeId, out var existingPs))
                                 {
-                                    ProductId = existingProduct.Id,
-                                    SizeId = sq.SizeId,
-                                    Quantity = sq.Quantity
-                                });
+                                    existingPs.Quantity = sq.Quantity;
+                                }
+                                else
+                                {
+                                    productSizesToAdd.Add(new ProductSize
+                                    {
+                                        ProductId = existingProduct.Id,
+                                        SizeId = sq.SizeId,
+                                        Quantity = sq.Quantity
+                                    });
+                                }
+
                                 totalQuantity += sq.Quantity;
                             }
                         }
 
-                        if (productSizes.Any())
-                            await _context.ProductSizes.AddRangeAsync(productSizes);
+                        if (productSizesToAdd.Any())
+                            await _context.ProductSizes.AddRangeAsync(productSizesToAdd);
 
-                        // تحديث المخزون
                         if (existingProduct.Inventory == null)
                         {
                             existingProduct.Inventory = new Inventory
@@ -339,21 +375,19 @@ namespace FinalGraduationProject.Controllers
                 }
             }
 
-            // لو فيه مشكلة في ModelState يرجع نفس الفورم بالبيانات
             ViewData["BrandId"] = new SelectList(_context.Brands, "Id", "Name", product.BrandId);
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
 
-            // رجّع المقاسات عشان الفورم يتعرض صح
-            var allSizes = await _context.Sizes.ToListAsync();
-            var sizeQuantities = allSizes.Select(s => new SizeQuantityDto
+            var allSizesOuter = await _context.Sizes.ToListAsync();
+            var sizeQuantitiesOuter = allSizesOuter.Select(s => new SizeQuantityDto
             {
                 SizeId = s.Id,
                 IsSelected = SizeQuantities.ContainsKey(s.Id) && SizeQuantities[s.Id].IsSelected,
                 Quantity = SizeQuantities.ContainsKey(s.Id) ? SizeQuantities[s.Id].Quantity : 0
             }).ToList();
 
-            ViewBag.SizeQuantities = sizeQuantities;
-            ViewBag.TotalStock = sizeQuantities.Sum(sq => sq.Quantity);
+            ViewBag.SizeQuantities = sizeQuantitiesOuter;
+            ViewBag.TotalStock = sizeQuantitiesOuter.Sum(sq => sq.Quantity);
 
             return View(product);
         }
