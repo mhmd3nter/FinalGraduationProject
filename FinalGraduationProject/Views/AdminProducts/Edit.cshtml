@@ -6,10 +6,12 @@
 
 <div class="container py-5">
     <h2 class="fw-bold text-primary mb-4">@ViewData["Title"]</h2>
+
     <form asp-action="Edit" method="post" class="shadow rounded bg-white p-4">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Id" />
 
+        <!-- Product Info -->
         <div class="mb-3">
             <label asp-for="Name" class="form-label"></label>
             <input asp-for="Name" class="form-control" />
@@ -63,25 +65,34 @@
             <label asp-for="IsActive" class="form-check-label"></label>
         </div>
 
-        <!-- ✅ تعديل جزء المقاسات -->
+        <!-- ✅ Available Sizes & Quantities -->
         @if (sizeQuantities != null && sizeQuantities.Any())
         {
             <h5 class="text-primary mt-4">Available Sizes & Stock</h5>
             <div class="row">
-                @foreach (var sq in sizeQuantities)
+                @for (int i = 0; i < sizeQuantities.Count; i++)
                 {
                     <div class="col-md-3 col-sm-4 col-6 mb-3">
                         <div class="card h-100">
                             <div class="card-body text-center">
-                                <label class="form-label fw-bold">@sq.SizeName</label> <!-- 👈 اسم المقاس -->
+                                <label class="form-label fw-bold">@sizeQuantities[i].SizeName</label>
+
+                                <!-- 👇 الكمية -->
                                 <input type="number"
-                                       name="SizeQuantities[@sq.SizeId].Quantity"
-                                       value="@sq.Quantity"
                                        class="form-control form-control-sm"
+                                       name="SizeQuantities[@i].Quantity"
+                                       value="@sizeQuantities[i].Quantity"
                                        min="0" />
-                                <input type="hidden" name="SizeQuantities[@sq.SizeId].SizeId" value="@sq.SizeId" />
-                                <input type="hidden" name="SizeQuantities[@sq.SizeId].IsSelected"
-                                       value="@(sq.IsSelected ? "true" : "false")" />
+
+                                <!-- 👇 الـ SizeId (مخفي) -->
+                                <input type="hidden"
+                                       name="SizeQuantities[@i].SizeId"
+                                       value="@sizeQuantities[i].SizeId" />
+
+                                <!-- 👇 IsSelected (مخفي) -->
+                                <input type="hidden"
+                                       name="SizeQuantities[@i].IsSelected"
+                                       value="@(sizeQuantities[i].IsSelected ? "true" : "false")" />
                             </div>
                         </div>
                     </div>
